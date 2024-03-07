@@ -1,0 +1,10 @@
+POST http://localhost:8080/
+Content-Type: application/json
+
+{
+  "service": "cn.hefrankeleyn.hefrpc.demo.api.UserService",
+  "method": "findById",
+  "args": [300]
+}
+
+###
