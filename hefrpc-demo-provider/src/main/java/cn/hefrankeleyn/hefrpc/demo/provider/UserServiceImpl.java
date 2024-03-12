@@ -5,6 +5,8 @@ import cn.hefrankeleyn.hefrpc.demo.api.User;
 import cn.hefrankeleyn.hefrpc.demo.api.UserService;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 /**
  * @Date 2024/3/7
  * @Author lifei
@@ -19,4 +21,16 @@ public class UserServiceImpl implements UserService {
         return new User(id, name);
     }
 
+    @Override
+    public Integer findIdNum(int id) {
+        return id;
+    }
+
+    @Override
+    public String findName(String userName) {
+        if (Objects.nonNull(userName)) {
+            return userName;
+        }
+        return "unknown";
+    }
 }

@@ -2,6 +2,16 @@ POST http://localhost:8080/
 Content-Type: application/json
 
 {
+  "service": "cn.hefrankeleyn.hefrpc.demo.api.OrderService",
+  "method": "findById",
+  "args": [30]
+}
+
+###
+POST http://localhost:8080/
+Content-Type: application/json
+
+{
   "service": "cn.hefrankeleyn.hefrpc.demo.api.UserService",
   "method": "findById",
   "args": [300]
