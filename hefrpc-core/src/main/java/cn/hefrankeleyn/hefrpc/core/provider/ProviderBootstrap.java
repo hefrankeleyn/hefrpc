@@ -3,18 +3,21 @@ package cn.hefrankeleyn.hefrpc.core.provider;
 import cn.hefrankeleyn.hefrpc.core.annotation.HefProvider;
 import cn.hefrankeleyn.hefrpc.core.api.RpcRequest;
 import cn.hefrankeleyn.hefrpc.core.api.RpcResponse;
+import cn.hefrankeleyn.hefrpc.core.utils.HefRpcMethodUtils;
+import static com.google.common.base.Preconditions.*;
+
+import cn.hefrankeleyn.hefrpc.core.utils.TypeUtils;
+import com.google.common.base.Strings;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.BeansException;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
 /**
  * @Date 2024/3/7
@@ -24,24 +27,18 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     private ApplicationContext applicationContext;
 
-    private Map<String, Object> skeletion = new HashMap<>();
-    private static int objNum = 0;
+    // 1. 缓存，加快访问速度； 2.
+    private MultiValueMap<String, ProviderMeta> skeletion = new LinkedMultiValueMap<>();
 
     public RpcResponse invoke(RpcRequest request) {
         RpcResponse response= new RpcResponse();
         try {
-            Object bean = skeletion.get(request.getService());
-            String methodName = request.getMethod();
-            Method[] objMethod = Object.class.getMethods();
-            Set<String> objMethodSet = Arrays.stream(objMethod).map(Method::getName).collect(Collectors.toSet());
-            if (objMethodSet.contains(methodName)) {
-                response.setStatus(false);
-                response.setData(null);
-                return response;
-            }
-            Method method = getMethod(bean, methodName);
-
-            Object data = method.invoke(bean, request.getArgs());
+            ProviderMeta providerMeta = findProviderMeta(request);
+            System.out.println(Strings.lenientFormat("开始执行：%s", providerMeta));
+            checkState(Objects.nonNull(providerMeta), "没有查到对方的方法：%s", request);
+            Method method = providerMeta.getMethod();
+            Object[] args = TypeUtils.processArgs(request.getArgs(), method.getParameterTypes());
+            Object data = method.invoke(providerMeta.getService(), args);
             response.setStatus(true);
             response.setData(data);
             return response;
@@ -53,10 +50,22 @@ public class ProviderBootstrap implements ApplicationContextAware {
         }
     }
 
-    private Method getMethod(Object bean, String methodName) {
+    private ProviderMeta findProviderMeta(RpcRequest request) {
+        List<ProviderMeta> providerMetas = skeletion.get(request.getService());
+        ProviderMeta result = providerMetas.stream().filter(providerMeta -> providerMeta.getMethodSign().equals(request.getMethodSign()))
+                .findFirst()
+                .orElse(null);
+        return result;
+    }
+
+    private boolean matchType(Class<?> parameterType, String argTypeName) {
+        return parameterType.getCanonicalName().equals(argTypeName);
+    }
+
+    private Method getMethod(Object bean, RpcRequest request) {
         Method[] methods = bean.getClass().getMethods();
         for (Method method : methods) {
-            if (method.getName().equals(methodName)) {
+            if (method.getName().equals(request.getMethodSign())) {
                 return method;
             }
         }
@@ -69,10 +78,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
      */
     @PostConstruct
     public void buildProviders() {
-        ++objNum;
-        System.out.printf("装配第 %d 个对象\n", objNum);
         Map<String, Object> beans = applicationContext.getBeansWithAnnotation(HefProvider.class);
-        System.out.println("beanSize" + beans.size());
         beans.values().forEach(
                 (item)-> getInterface(item)
         );
@@ -84,8 +90,21 @@ public class ProviderBootstrap implements ApplicationContextAware {
      * @return
      */
     private void getInterface(Object o) {
-        Class<?> clazz = o.getClass().getInterfaces()[0];
-        skeletion.put(clazz.getCanonicalName(), o);
+        for (Method method : o.getClass().getMethods()) {
+            if (HefRpcMethodUtils.checkLocalMethod(method)) {
+                continue;
+            }
+            ProviderMeta providerMeta = new ProviderMeta();
+//            Class<?> clazz = o.getClass().getInterfaces()[0];
+            for (Class<?> clazz : o.getClass().getInterfaces()) {
+                String className = clazz.getCanonicalName();
+                providerMeta.setMethodSign(HefRpcMethodUtils.createMethodSign(method));
+                providerMeta.setMethod(method);
+                providerMeta.setService(o);
+                System.out.println(providerMeta);
+                skeletion.add(className, providerMeta);
+            }
+        }
     }
 
     @Override

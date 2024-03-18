@@ -43,7 +43,7 @@ public class HefrpcDemoProviderApplication {
 			System.out.println("run 方法运行了");
 			RpcRequest request = new RpcRequest();
 			request.setService("cn.hefrankeleyn.hefrpc.demo.api.UserService");
-			request.setMethod("findById");
+			request.setMethodSign("findById#int");
 			request.setArgs(new Object[]{100});
 			RpcResponse response = providerBootstrap.invoke(request);
 			System.out.println(response.getData());

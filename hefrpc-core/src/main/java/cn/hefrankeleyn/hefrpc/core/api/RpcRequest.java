@@ -13,7 +13,7 @@ public class RpcRequest {
     private String service;
 
     /** 方法，例如：findById */
-    private String method;
+    private String methodSign;
 
     /** 参数： 例如： 100 */
     private Object[] args;
@@ -26,12 +26,12 @@ public class RpcRequest {
         this.service = service;
     }
 
-    public String getMethod() {
-        return method;
+    public String getMethodSign() {
+        return methodSign;
     }
 
-    public void setMethod(String method) {
-        this.method = method;
+    public void setMethodSign(String methodSign) {
+        this.methodSign = methodSign;
     }
 
     public Object[] getArgs() {
@@ -46,7 +46,7 @@ public class RpcRequest {
     public String toString() {
         return "RpcRequest{" +
                 "service='" + service + '\'' +
-                ", method='" + method + '\'' +
+                ", method='" + methodSign + '\'' +
                 ", args=" + Arrays.toString(args) +
                 '}';
     }
