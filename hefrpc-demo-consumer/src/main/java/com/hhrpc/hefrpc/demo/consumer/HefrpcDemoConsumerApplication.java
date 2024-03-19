@@ -13,7 +13,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @SpringBootApplication
 @Import(ConsumerConf.class)
@@ -52,8 +54,16 @@ public class HefrpcDemoConsumerApplication {
 //            System.out.println(Arrays.toString(this.orderService.findIds()));
 //            System.out.println(Arrays.toString(this.orderService.findIntIds()));
 //            System.out.println(Arrays.toString(this.orderService.findIntIds(new int[]{9, 8, 7, 6, 5})));
-            List<Integer> listIds = this.orderService.findListIds();
-            System.out.println(listIds);
+//            List<Integer> listIds = this.orderService.findListIds();
+//            System.out.println(listIds);
+
+//            List<Integer> listOids = this.orderService.findListIds(Arrays.asList(new Order(1, 1.1d), new Order(2, 2.2d)));
+//            System.out.println(listOids);
+            Map<String, Order> map = new HashMap<>();
+            map.put("aaa", new Order(111, 11.1d));
+            map.put("bbb", new Order(222, 22.2d));
+            Map<String, Order> resMap = this.orderService.findMap(map);
+            System.out.println(resMap);
         };
     }
 

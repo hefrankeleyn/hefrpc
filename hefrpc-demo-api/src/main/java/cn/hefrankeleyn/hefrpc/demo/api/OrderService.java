@@ -1,6 +1,7 @@
 package cn.hefrankeleyn.hefrpc.demo.api;
 
 import java.util.List;
+import java.util.Map;
 
 public interface OrderService {
 
@@ -17,4 +18,8 @@ public interface OrderService {
     int[] findIntIds(int[] ids);
 
     List<Integer> findListIds();
+
+    List<Integer> findListIds(List<Order> orderList);
+
+    Map<String, Order> findMap(Map<String, Order> map);
 }

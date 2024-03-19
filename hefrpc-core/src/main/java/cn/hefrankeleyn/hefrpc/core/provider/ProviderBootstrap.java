@@ -37,7 +37,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
             System.out.println(Strings.lenientFormat("开始执行：%s", providerMeta));
             checkState(Objects.nonNull(providerMeta), "没有查到对方的方法：%s", request);
             Method method = providerMeta.getMethod();
-            Object[] args = TypeUtils.processArgs(request.getArgs(), method.getParameterTypes());
+            Object[] args = TypeUtils.processArgs(request.getArgs(), method.getParameterTypes(), method.getGenericParameterTypes());
             Object data = method.invoke(providerMeta.getService(), args);
             response.setStatus(true);
             response.setData(data);

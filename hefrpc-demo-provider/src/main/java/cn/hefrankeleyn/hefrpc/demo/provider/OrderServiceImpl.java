@@ -7,8 +7,7 @@ import com.google.common.collect.Lists;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * @Date 2024/3/8
@@ -65,6 +64,19 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<Integer> findListIds() {
         return Arrays.asList(1, 2,3, 4, 5, 6, 7);
+    }
+
+    @Override
+    public List<Integer> findListIds(List<Order> orderList) {
+        if (Objects.isNull(orderList) || orderList.size()==0) {
+            return new ArrayList<>();
+        }
+        return orderList.stream().map(Order::getOid).toList();
+    }
+
+    @Override
+    public Map<String, Order> findMap(Map<String, Order> map) {
+        return map;
     }
 
     @PostConstruct

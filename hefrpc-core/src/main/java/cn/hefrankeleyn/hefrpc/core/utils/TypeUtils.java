@@ -2,10 +2,12 @@ package cn.hefrankeleyn.hefrpc.core.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import lombok.val;
 
 import java.lang.reflect.*;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -34,7 +36,7 @@ public class TypeUtils {
         }
     }
 
-    public static Object cast(Object arg, Class<?> type) {
+    public static Object cast(Object arg, Class<?> type, Type genericParameterType) {
         try {
             if (Objects.isNull(arg)) {
                 return null;
@@ -62,6 +64,25 @@ public class TypeUtils {
             // 第一种方案：使用Gson进行反序列化
             Gson gson = new Gson();
             String valStr = gson.toJson(arg);
+            if (List.class.isAssignableFrom(type)) {
+                if (genericParameterType instanceof ParameterizedType parameterizedType) {
+                    Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                    if (Objects.nonNull(actualTypeArguments) && actualTypeArguments.length>0) {
+                        Type actualTypeArgument = actualTypeArguments[0];
+                        TypeToken<?> parameterized = TypeToken.getParameterized(List.class, actualTypeArgument);
+                        result = gson.fromJson(valStr, parameterized.getType());
+                        return result;
+                    }
+                }
+            }
+            if (Map.class.isAssignableFrom(type)) {
+                if (genericParameterType instanceof ParameterizedType parameterizedType) {
+                    Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                    TypeToken<?> parameterized = TypeToken.getParameterized(Map.class, actualTypeArguments);
+                    result = gson.fromJson(valStr, parameterized.getType());
+                    return result;
+                }
+            }
             result = gson.fromJson(valStr, type);
             // // 第二种方案
 //            if (arg instanceof HashMap map) {
@@ -101,13 +122,13 @@ public class TypeUtils {
      * @param parameterTypes
      * @return
      */
-    public static Object[] processArgs(Object[] args, Class<?>[] parameterTypes) {
+    public static Object[] processArgs(Object[] args, Class<?>[] parameterTypes, Type[] genericParameterTypes) {
         if (args == null || args.length == 0) {
             return args;
         }
         Object[] result = new Object[args.length];
         for (int i = 0; i < args.length; i++) {
-            result[i] = cast(args[i], parameterTypes[i]);
+            result[i] = cast(args[i], parameterTypes[i], genericParameterTypes[i]);
         }
         return result;
     }

@@ -13,6 +13,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -72,6 +73,15 @@ public class HefConsumerHandler implements InvocationHandler {
                     if (actualTypeArguments.length>0) {
                         Type actualTypeArgument = actualTypeArguments[0];
                         TypeToken<?> listType = TypeToken.getParameterized(List.class, actualTypeArgument);
+                        parameterized = TypeToken.getParameterized(RpcResponse.class, listType.getType());
+                    }
+                }
+            }
+            if (Map.class.isAssignableFrom(realType)) {
+                if (genericReturnType instanceof ParameterizedType parameterizedType) {
+                    Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                    if (actualTypeArguments!=null && actualTypeArguments.length>0) {
+                        TypeToken<?> listType = TypeToken.getParameterized(Map.class, actualTypeArguments);
                         parameterized = TypeToken.getParameterized(RpcResponse.class, listType.getType());
                     }
                 }
