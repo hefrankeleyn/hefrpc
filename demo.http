@@ -1,20 +1,30 @@
-POST http://localhost:8080/
+POST http://localhost:8081/
 Content-Type: application/json
 
 {
   "service": "cn.hefrankeleyn.hefrpc.demo.api.OrderService",
-  "method": "findById",
+  "methodSign": "findById#java.lang.Integer",
   "args": [30]
 }
 
 ###
-POST http://localhost:8080/
+POST http://localhost:8082/
 Content-Type: application/json
 
 {
   "service": "cn.hefrankeleyn.hefrpc.demo.api.UserService",
-  "method": "findById",
+  "methodSign": "findById#int",
   "args": [300]
+}
+
+###
+POST http://localhost:8081/
+Content-Type: application/json
+
+{
+"service": "cn.hefrankeleyn.hefrpc.demo.api.UserService",
+"methodSign": "findById#int",
+"args": [300]
 }
 
 ###

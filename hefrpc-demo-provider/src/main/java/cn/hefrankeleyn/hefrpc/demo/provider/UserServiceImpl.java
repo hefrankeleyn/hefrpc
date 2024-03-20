@@ -3,6 +3,8 @@ package cn.hefrankeleyn.hefrpc.demo.provider;
 import cn.hefrankeleyn.hefrpc.core.annotation.HefProvider;
 import cn.hefrankeleyn.hefrpc.demo.api.User;
 import cn.hefrankeleyn.hefrpc.demo.api.UserService;
+import jakarta.annotation.Resource;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -15,9 +17,12 @@ import java.util.Objects;
 @HefProvider
 public class UserServiceImpl implements UserService {
 
+    @Resource
+    private Environment environment;
     @Override
     public User findById(int id) {
-        String name = "hef-" + System.currentTimeMillis();
+        String port = environment.getProperty("server.port");
+        String name = "hef-" +port+"-" +System.currentTimeMillis();
         return new User(id, name);
     }
 

@@ -1,5 +1,9 @@
 package cn.hefrankeleyn.hefrpc.core.conf;
 
+import cn.hefrankeleyn.hefrpc.core.api.LoadBalance;
+import cn.hefrankeleyn.hefrpc.core.api.Router;
+import cn.hefrankeleyn.hefrpc.core.cluster.RandomLoadBalance;
+import cn.hefrankeleyn.hefrpc.core.cluster.RoundRibonLoadBalance;
 import cn.hefrankeleyn.hefrpc.core.consumer.ConsumerBootstrap;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -23,4 +27,15 @@ public class ConsumerConf {
     public ApplicationRunner runner(ConsumerBootstrap consumerBootstrap) {
         return x -> consumerBootstrap.scanningFields();
     }
+
+    @Bean
+    public LoadBalance loadBalance(){
+        return new RoundRibonLoadBalance();
+    }
+
+    @Bean
+    public Router router() {
+        return Router.DEFAULT;
+    }
+    
 }

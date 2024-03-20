@@ -1,7 +1,6 @@
 package cn.hefrankeleyn.hefrpc.core.handler;
 
-import cn.hefrankeleyn.hefrpc.core.api.RpcRequest;
-import cn.hefrankeleyn.hefrpc.core.api.RpcResponse;
+import cn.hefrankeleyn.hefrpc.core.api.*;
 import cn.hefrankeleyn.hefrpc.core.utils.HefRpcMethodUtils;
 import cn.hefrankeleyn.hefrpc.core.utils.TypeUtils;
 import com.google.gson.Gson;
@@ -12,6 +11,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -23,9 +23,13 @@ import java.util.concurrent.TimeUnit;
 public class HefConsumerHandler implements InvocationHandler {
 
     private String service;
+    private List<String> providers;
+    private HefrpcContent hefrpcContent;
 
-    public HefConsumerHandler(String service) {
+    public HefConsumerHandler(String service, List<String> providers, HefrpcContent hefrpcContent) {
         this.service = service;
+        this.providers = providers;
+        this.hefrpcContent = hefrpcContent;
     }
 
     @Override
@@ -58,8 +62,10 @@ public class HefConsumerHandler implements InvocationHandler {
         try {
             Gson gson = new Gson();
             String jsonRequest = gson.toJson(request);
+            String url = (String) hefrpcContent.getLoadBalance().choose(hefrpcContent.getRouter().route(providers));
+            System.out.println("loadBalance.choose(urls) => " + url);
             Request okRequest = new Request.Builder()
-                    .url("http://localhost:8080/")
+                    .url(url)
                     .post(RequestBody.create(jsonRequest, MediaType.get("application/json; charset=utf-8")))
                     .build();
             Response okResponse = client.newCall(okRequest).execute();

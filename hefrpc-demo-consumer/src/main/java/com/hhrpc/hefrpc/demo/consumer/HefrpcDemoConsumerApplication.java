@@ -11,6 +11,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,6 +21,7 @@ import java.util.Map;
 
 @SpringBootApplication
 @Import(ConsumerConf.class)
+@RestController
 public class HefrpcDemoConsumerApplication {
 
     @HefConsumer
@@ -26,6 +29,11 @@ public class HefrpcDemoConsumerApplication {
 
     @HefConsumer
     private OrderService orderService;
+
+    @RequestMapping(value = "/")
+    public User findById(int id) {
+        return this.userService.findById(id);
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(HefrpcDemoConsumerApplication.class, args);
@@ -59,11 +67,13 @@ public class HefrpcDemoConsumerApplication {
 
 //            List<Integer> listOids = this.orderService.findListIds(Arrays.asList(new Order(1, 1.1d), new Order(2, 2.2d)));
 //            System.out.println(listOids);
-            Map<String, Order> map = new HashMap<>();
-            map.put("aaa", new Order(111, 11.1d));
-            map.put("bbb", new Order(222, 22.2d));
-            Map<String, Order> resMap = this.orderService.findMap(map);
-            System.out.println(resMap);
+//            Map<String, Order> map = new HashMap<>();
+//            map.put("aaa", new Order(111, 11.1d));
+//            map.put("bbb", new Order(222, 22.2d));
+//            Map<String, Order> resMap = this.orderService.findMap(map);
+//            System.out.println(resMap);
+            User user03 = this.userService.findById(12);
+            System.out.println(user03);
         };
     }
 

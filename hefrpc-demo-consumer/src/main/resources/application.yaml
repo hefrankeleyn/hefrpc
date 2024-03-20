@@ -1,2 +1,5 @@
 server:
   port: 8088
+
+hefrpc:
+  provicer: http://localhost:8081,http://localhost:8082
