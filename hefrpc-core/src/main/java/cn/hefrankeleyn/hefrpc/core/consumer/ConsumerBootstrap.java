@@ -3,6 +3,7 @@ package cn.hefrankeleyn.hefrpc.core.consumer;
 import cn.hefrankeleyn.hefrpc.core.annotation.HefConsumer;
 import cn.hefrankeleyn.hefrpc.core.api.HefrpcContent;
 import cn.hefrankeleyn.hefrpc.core.api.LoadBalance;
+import cn.hefrankeleyn.hefrpc.core.api.RegistryCenter;
 import cn.hefrankeleyn.hefrpc.core.api.Router;
 import cn.hefrankeleyn.hefrpc.core.handler.HefConsumerHandler;
 import com.google.common.base.Strings;
@@ -48,12 +49,7 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
 
     public void scanningFields() {
-        // 获取urls
-        String urls = environment.getProperty("hefrpc.provicer");
-        if (Strings.isNullOrEmpty(urls)) {
-            System.out.println("未获取到urls");
-        }
-        List<String> providers = Arrays.asList(urls.split(","));
+        RegistryCenter registryCenter = applicationContext.getBean(RegistryCenter.class);
         Router router = applicationContext.getBean(Router.class);
         LoadBalance loadBalance = applicationContext.getBean(LoadBalance.class);
         HefrpcContent hefrpcContent = new HefrpcContent(loadBalance, router);
@@ -72,11 +68,11 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
             try {
                 for (Field field : consumerFieldList) {
                     String serviceName = field.getType().getCanonicalName();
-                    Object proxyObj = null;
+                    Object proxyObj;
                     if (stub.containsKey(serviceName)) {
                         proxyObj = stub.get(serviceName);
                     } else {
-                        proxyObj = fetchProxyObj(field.getType(), providers, hefrpcContent);
+                        proxyObj = createFromRegistry(field.getType(), hefrpcContent, registryCenter);
                         stub.put(serviceName, proxyObj);
                     }
                     field.setAccessible(true);
@@ -86,6 +82,11 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    private Object createFromRegistry(Class<?> type, HefrpcContent hefrpcContent, RegistryCenter registryCenter) {
+        List<String> providers = registryCenter.findAll(type.getCanonicalName());
+        return fetchProxyObj(type, providers, hefrpcContent);
     }
 
     private Object fetchProxyObj(Class<?> service, List<String> providers, HefrpcContent hefrpcContent) {
