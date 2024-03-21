@@ -1,5 +1,7 @@
 package cn.hefrankeleyn.hefrpc.core.api;
 
+import cn.hefrankeleyn.hefrpc.core.registry.ChangedListener;
+
 import java.util.List;
 
 /**
@@ -23,7 +25,7 @@ public interface RegistryCenter {
     List<String> findAll(String service);
 
     // consumer 端：订阅， 监听节点变化
-    void subscribe();
+    void subscribe(String service, ChangedListener changedListener);
 
     class StaticRegistryCenter implements RegistryCenter {
 
@@ -59,7 +61,7 @@ public interface RegistryCenter {
         }
 
         @Override
-        public void subscribe() {
+        public void subscribe(String service, ChangedListener changedListener) {
 
         }
     }

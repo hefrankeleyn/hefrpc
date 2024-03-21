@@ -6,6 +6,7 @@ import cn.hefrankeleyn.hefrpc.core.api.Router;
 import cn.hefrankeleyn.hefrpc.core.cluster.RandomLoadBalance;
 import cn.hefrankeleyn.hefrpc.core.cluster.RoundRibonLoadBalance;
 import cn.hefrankeleyn.hefrpc.core.consumer.ConsumerBootstrap;
+import cn.hefrankeleyn.hefrpc.core.registry.ZkRegistryCenter;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
@@ -50,8 +51,9 @@ public class ConsumerConf {
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     public RegistryCenter registryCenter() {
-        List<String> providers = Arrays.asList(servers.split(","));
-        return new RegistryCenter.StaticRegistryCenter(providers);
+//        List<String> providers = Arrays.asList(servers.split(","));
+//        return new RegistryCenter.StaticRegistryCenter(providers);
+        return new ZkRegistryCenter();
     }
     
 }

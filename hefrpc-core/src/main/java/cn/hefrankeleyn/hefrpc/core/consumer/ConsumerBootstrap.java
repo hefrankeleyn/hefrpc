@@ -16,6 +16,7 @@ import org.springframework.core.env.Environment;
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Date 2024/3/11
@@ -85,8 +86,21 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
     }
 
     private Object createFromRegistry(Class<?> type, HefrpcContent hefrpcContent, RegistryCenter registryCenter) {
-        List<String> providers = registryCenter.findAll(type.getCanonicalName());
+        String serviceName = type.getCanonicalName();
+        List<String> nodes = registryCenter.findAll(serviceName);
+        List<String> providers = mapToUrls(nodes);
+        System.out.println("====> nodes map to providers");
+        providers.forEach(System.out::println);
+        registryCenter.subscribe(serviceName, (event)->{
+            providers.clear();
+            providers.addAll(mapToUrls(event.getNodes()));
+        });
         return fetchProxyObj(type, providers, hefrpcContent);
+    }
+
+    private List<String> mapToUrls(List<String> nodes) {
+        return  nodes.stream().map(node->Strings.lenientFormat("http://%s/", node.replace("_", ":")))
+                .collect(Collectors.toList());
     }
 
     private Object fetchProxyObj(Class<?> service, List<String> providers, HefrpcContent hefrpcContent) {
@@ -98,4 +112,5 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
     public void setEnvironment(Environment environment) {
         this.environment = environment;
     }
+
 }
