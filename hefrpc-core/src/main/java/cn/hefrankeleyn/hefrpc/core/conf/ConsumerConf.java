@@ -7,7 +7,8 @@ import cn.hefrankeleyn.hefrpc.core.cluster.RoundRibonLoadBalance;
 import cn.hefrankeleyn.hefrpc.core.consumer.ConsumerBootstrap;
 import cn.hefrankeleyn.hefrpc.core.consumer.HttpInvoker;
 import cn.hefrankeleyn.hefrpc.core.consumer.http.OkHttpInvoker;
-import cn.hefrankeleyn.hefrpc.core.registry.ZkRegistryCenter;
+import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
+import cn.hefrankeleyn.hefrpc.core.registry.zk.ZkRegistryCenter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -36,12 +37,12 @@ public class ConsumerConf {
     }
 
     @Bean
-    public LoadBalance loadBalance(){
-        return new RoundRibonLoadBalance();
+    public LoadBalance<InstanceMeta> loadBalance(){
+        return new RoundRibonLoadBalance<>();
     }
 
     @Bean
-    public Router router() {
+    public Router<InstanceMeta> router() {
         return Router.DEFAULT;
     }
 

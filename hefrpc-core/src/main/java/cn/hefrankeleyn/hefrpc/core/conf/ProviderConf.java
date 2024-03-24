@@ -3,7 +3,7 @@ package cn.hefrankeleyn.hefrpc.core.conf;
 import cn.hefrankeleyn.hefrpc.core.api.RegistryCenter;
 import cn.hefrankeleyn.hefrpc.core.provider.ProviderBootstrap;
 import cn.hefrankeleyn.hefrpc.core.provider.ProviderInvoker;
-import cn.hefrankeleyn.hefrpc.core.registry.ZkRegistryCenter;
+import cn.hefrankeleyn.hefrpc.core.registry.zk.ZkRegistryCenter;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
