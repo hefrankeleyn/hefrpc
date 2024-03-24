@@ -4,6 +4,7 @@ import cn.hefrankeleyn.hefrpc.core.api.RpcRequest;
 import cn.hefrankeleyn.hefrpc.core.api.RpcResponse;
 import cn.hefrankeleyn.hefrpc.core.conf.ProviderConf;
 import cn.hefrankeleyn.hefrpc.core.provider.ProviderBootstrap;
+import cn.hefrankeleyn.hefrpc.core.provider.ProviderInvoker;
 import jakarta.annotation.Resource;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class HefrpcDemoProviderApplication {
 
 	@Resource
-	private ProviderBootstrap providerBootstrap;
+	private ProviderInvoker providerInvoker;
 
 	public static void main(String[] args) {
 		SpringApplication.run(HefrpcDemoProviderApplication.class, args);
@@ -30,7 +31,7 @@ public class HefrpcDemoProviderApplication {
 	// 使用HTTP + JSON实现序列化
 	@RequestMapping(value = "/")
 	public RpcResponse invoke(@RequestBody RpcRequest request) {
-		return providerBootstrap.invoke(request);
+		return providerInvoker.invoke(request);
 	}
 
 	/**
@@ -45,7 +46,7 @@ public class HefrpcDemoProviderApplication {
 			request.setService("cn.hefrankeleyn.hefrpc.demo.api.UserService");
 			request.setMethodSign("findById#int");
 			request.setArgs(new Object[]{100});
-			RpcResponse response = providerBootstrap.invoke(request);
+			RpcResponse response = providerInvoker.invoke(request);
 			System.out.println(response.getData());
 		};
 	}

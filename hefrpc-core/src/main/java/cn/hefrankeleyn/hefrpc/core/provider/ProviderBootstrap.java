@@ -42,48 +42,6 @@ public class ProviderBootstrap implements ApplicationContextAware, EnvironmentAw
     // 1. 缓存，加快访问速度； 2.
     private MultiValueMap<String, ProviderMeta> skeletion = new LinkedMultiValueMap<>();
 
-    public RpcResponse invoke(RpcRequest request) {
-        RpcResponse response = new RpcResponse();
-        try {
-            ProviderMeta providerMeta = findProviderMeta(request);
-            System.out.println(Strings.lenientFormat("开始执行：%s", providerMeta));
-            checkState(Objects.nonNull(providerMeta), "没有查到对方的方法：%s", request);
-            Method method = providerMeta.getMethod();
-            Object[] args = TypeUtils.processArgs(request.getArgs(), method.getParameterTypes(), method.getGenericParameterTypes());
-            Object data = method.invoke(providerMeta.getService(), args);
-            response.setStatus(true);
-            response.setData(data);
-            return response;
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.setStatus(false);
-            response.setData(null);
-            return response;
-        }
-    }
-
-    private ProviderMeta findProviderMeta(RpcRequest request) {
-        List<ProviderMeta> providerMetas = skeletion.get(request.getService());
-        ProviderMeta result = providerMetas.stream().filter(providerMeta -> providerMeta.getMethodSign().equals(request.getMethodSign()))
-                .findFirst()
-                .orElse(null);
-        return result;
-    }
-
-    private boolean matchType(Class<?> parameterType, String argTypeName) {
-        return parameterType.getCanonicalName().equals(argTypeName);
-    }
-
-    private Method getMethod(Object bean, RpcRequest request) {
-        Method[] methods = bean.getClass().getMethods();
-        for (Method method : methods) {
-            if (method.getName().equals(request.getMethodSign())) {
-                return method;
-            }
-        }
-        return null;
-    }
-
 
     /**
      * POSTConstruct 相当于 init-method
@@ -158,5 +116,9 @@ public class ProviderBootstrap implements ApplicationContextAware, EnvironmentAw
     @Override
     public void setEnvironment(Environment environment) {
         this.environment = environment;
+    }
+
+    public MultiValueMap<String, ProviderMeta> getSkeletion() {
+        return skeletion;
     }
 }
