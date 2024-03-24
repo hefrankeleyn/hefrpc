@@ -3,20 +3,16 @@ package cn.hefrankeleyn.hefrpc.core.conf;
 import cn.hefrankeleyn.hefrpc.core.api.LoadBalance;
 import cn.hefrankeleyn.hefrpc.core.api.RegistryCenter;
 import cn.hefrankeleyn.hefrpc.core.api.Router;
-import cn.hefrankeleyn.hefrpc.core.cluster.RandomLoadBalance;
 import cn.hefrankeleyn.hefrpc.core.cluster.RoundRibonLoadBalance;
 import cn.hefrankeleyn.hefrpc.core.consumer.ConsumerBootstrap;
+import cn.hefrankeleyn.hefrpc.core.consumer.HttpInvoker;
+import cn.hefrankeleyn.hefrpc.core.consumer.http.OkHttpInvoker;
 import cn.hefrankeleyn.hefrpc.core.registry.ZkRegistryCenter;
-import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.env.Environment;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @Date 2024/3/11
@@ -54,6 +50,11 @@ public class ConsumerConf {
 //        List<String> providers = Arrays.asList(servers.split(","));
 //        return new RegistryCenter.StaticRegistryCenter(providers);
         return new ZkRegistryCenter();
+    }
+
+    @Bean
+    public HttpInvoker httpInvoker() {
+        return new OkHttpInvoker();
     }
     
 }

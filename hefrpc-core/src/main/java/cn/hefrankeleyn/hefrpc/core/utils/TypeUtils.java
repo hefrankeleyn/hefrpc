@@ -136,8 +136,9 @@ public class TypeUtils {
         return result;
     }
 
-    public static RpcResponse getRpcResponse(Method method, Response okResponse) throws IOException {
-        String dataStr = okResponse.body().string();
+    public static RpcResponse getRpcResponse(Method method, RpcResponse rpcResponse) throws IOException {
+        Gson gson = new Gson();
+        String dataStr = gson.toJson(rpcResponse);
         Class<?> realType = TypeUtils.cast(method.getReturnType());
         TypeToken<?> parameterized = TypeToken.getParameterized(RpcResponse.class, realType);
         // 处理返回值是List的情况
@@ -161,7 +162,6 @@ public class TypeUtils {
                 }
             }
         }
-        Gson gson = new Gson();
         RpcResponse result = gson.fromJson(dataStr, parameterized.getType());
         return result;
     }
