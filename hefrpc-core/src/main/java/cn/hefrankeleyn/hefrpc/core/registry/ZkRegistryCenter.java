@@ -6,7 +6,6 @@ import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.TreeCache;
-import org.apache.curator.framework.recipes.cache.TreeCacheListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 
@@ -20,6 +19,7 @@ import java.util.Objects;
 public class ZkRegistryCenter implements RegistryCenter {
 
     private CuratorFramework client = null;
+    private TreeCache treeCache=null;
     @Override
     public void start() {
         // 间隔1秒，重试次数3次
@@ -35,6 +35,10 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     @Override
     public void stop() {
+        System.out.println("====>> stop zk.");
+        if (Objects.nonNull(treeCache)) {
+            treeCache.close();
+        }
         client.close();
     }
 
@@ -91,7 +95,7 @@ public class ZkRegistryCenter implements RegistryCenter {
     public void subscribe(String service, ChangedListener changedListener) {
         try {
             String servicePath = Strings.lenientFormat("/%s", service);
-            final TreeCache treeCache = TreeCache.newBuilder(client, servicePath)
+            treeCache = TreeCache.newBuilder(client, servicePath)
                     .setCacheData(true) // 打开缓存，避免频繁交互
                     .setMaxDepth(2) // 设置最大的深度
                     .build();

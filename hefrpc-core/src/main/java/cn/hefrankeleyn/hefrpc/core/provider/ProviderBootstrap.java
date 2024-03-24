@@ -4,6 +4,7 @@ import cn.hefrankeleyn.hefrpc.core.annotation.HefProvider;
 import cn.hefrankeleyn.hefrpc.core.api.RegistryCenter;
 import cn.hefrankeleyn.hefrpc.core.api.RpcRequest;
 import cn.hefrankeleyn.hefrpc.core.api.RpcResponse;
+import cn.hefrankeleyn.hefrpc.core.registry.ZkRegistryCenter;
 import cn.hefrankeleyn.hefrpc.core.utils.HefRpcMethodUtils;
 
 import static com.google.common.base.Preconditions.*;
@@ -35,6 +36,8 @@ public class ProviderBootstrap implements ApplicationContextAware, EnvironmentAw
     private Environment environment;
 
     private String instance;
+
+    private RegistryCenter registryCenter;
 
     // 1. 缓存，加快访问速度； 2.
     private MultiValueMap<String, ProviderMeta> skeletion = new LinkedMultiValueMap<>();
@@ -88,6 +91,7 @@ public class ProviderBootstrap implements ApplicationContextAware, EnvironmentAw
     @PostConstruct
     public void init() {
         Map<String, Object> beans = applicationContext.getBeansWithAnnotation(HefProvider.class);
+        registryCenter = applicationContext.getBean(RegistryCenter.class);
         beans.values().forEach(
                 (item) -> getInterface(item)
         );
@@ -98,7 +102,6 @@ public class ProviderBootstrap implements ApplicationContextAware, EnvironmentAw
             String port = environment.getProperty("server.port");
             String hostAddress = InetAddress.getLocalHost().getHostAddress();
             instance = Strings.lenientFormat("%s_%s", hostAddress, port);
-            RegistryCenter registryCenter = applicationContext.getBean(RegistryCenter.class);
             registryCenter.start();
             skeletion.keySet().forEach(this::registerService);
         } catch (Exception e) {
@@ -109,7 +112,6 @@ public class ProviderBootstrap implements ApplicationContextAware, EnvironmentAw
     @PreDestroy
     public void stop() {
         skeletion.keySet().forEach(this::unregisterService);
-        RegistryCenter registryCenter = applicationContext.getBean(RegistryCenter.class);
         registryCenter.stop();
     }
 
