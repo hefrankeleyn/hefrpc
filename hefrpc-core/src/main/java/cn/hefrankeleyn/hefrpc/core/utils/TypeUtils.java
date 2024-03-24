@@ -1,9 +1,12 @@
 package cn.hefrankeleyn.hefrpc.core.utils;
 
+import cn.hefrankeleyn.hefrpc.core.api.RpcResponse;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import lombok.val;
+import okhttp3.Response;
 
+import java.io.IOException;
 import java.lang.reflect.*;
 import java.util.HashMap;
 import java.util.List;
@@ -130,6 +133,36 @@ public class TypeUtils {
         for (int i = 0; i < args.length; i++) {
             result[i] = cast(args[i], parameterTypes[i], genericParameterTypes[i]);
         }
+        return result;
+    }
+
+    public static RpcResponse getRpcResponse(Method method, Response okResponse) throws IOException {
+        String dataStr = okResponse.body().string();
+        Class<?> realType = TypeUtils.cast(method.getReturnType());
+        TypeToken<?> parameterized = TypeToken.getParameterized(RpcResponse.class, realType);
+        // 处理返回值是List的情况
+        Type genericReturnType = method.getGenericReturnType();
+        if (List.class.isAssignableFrom(realType)) {
+            if (genericReturnType instanceof ParameterizedType parameterizedType) {
+                Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                if (actualTypeArguments.length>0) {
+                    Type actualTypeArgument = actualTypeArguments[0];
+                    TypeToken<?> listType = TypeToken.getParameterized(List.class, actualTypeArgument);
+                    parameterized = TypeToken.getParameterized(RpcResponse.class, listType.getType());
+                }
+            }
+        }
+        if (Map.class.isAssignableFrom(realType)) {
+            if (genericReturnType instanceof ParameterizedType parameterizedType) {
+                Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                if (actualTypeArguments!=null && actualTypeArguments.length>0) {
+                    TypeToken<?> listType = TypeToken.getParameterized(Map.class, actualTypeArguments);
+                    parameterized = TypeToken.getParameterized(RpcResponse.class, listType.getType());
+                }
+            }
+        }
+        Gson gson = new Gson();
+        RpcResponse result = gson.fromJson(dataStr, parameterized.getType());
         return result;
     }
 }

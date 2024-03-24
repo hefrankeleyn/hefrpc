@@ -6,6 +6,7 @@ import cn.hefrankeleyn.hefrpc.core.api.LoadBalance;
 import cn.hefrankeleyn.hefrpc.core.api.RegistryCenter;
 import cn.hefrankeleyn.hefrpc.core.api.Router;
 import cn.hefrankeleyn.hefrpc.core.handler.HefConsumerHandler;
+import cn.hefrankeleyn.hefrpc.core.utils.HefRpcMethodUtils;
 import com.google.common.base.Strings;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -33,20 +34,6 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
         this.applicationContext = applicationContext;
     }
 
-    private List<Field> getConsumerField(Class<?> beanClass) {
-        List<Field> result = new ArrayList<>();
-        while (Objects.nonNull(beanClass)) {
-            Field[] fields = beanClass.getDeclaredFields();
-            for (Field field : fields) {
-                if (field.isAnnotationPresent(HefConsumer.class)) {
-                    result.add(field);
-                }
-            }
-            beanClass = beanClass.getSuperclass();
-        }
-        return result;
-    }
-
 
 
     public void scanningFields() {
@@ -61,7 +48,7 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
             if (Objects.isNull(fields) || fields.length==0) {
                 continue;
             }
-            List<Field> consumerFieldList = getConsumerField(bean.getClass());
+            List<Field> consumerFieldList = HefRpcMethodUtils.getAnnotationField(bean.getClass(), HefConsumer.class);
 
             if (Objects.isNull(consumerFieldList) || consumerFieldList.size()==0) {
                 continue;

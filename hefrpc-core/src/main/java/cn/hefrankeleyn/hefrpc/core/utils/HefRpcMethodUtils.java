@@ -1,8 +1,11 @@
 package cn.hefrankeleyn.hefrpc.core.utils;
 
+import cn.hefrankeleyn.hefrpc.core.annotation.HefConsumer;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -42,6 +45,20 @@ public class HefRpcMethodUtils {
         String argStr = Arrays.stream(method.getParameterTypes()).map(Class::getCanonicalName)
                 .collect(Collectors.joining(ARGUMENT_TYPE_SPLIT));
         return String.format("%s%s%s", methodName, METHOD_CONNECT_ARGS_TYPE, argStr);
+    }
+
+    public static List<Field> getAnnotationField(Class<?> beanClass, Class<? extends Annotation> annotationClass) {
+        List<Field> result = new ArrayList<>();
+        while (Objects.nonNull(beanClass)) {
+            Field[] fields = beanClass.getDeclaredFields();
+            for (Field field : fields) {
+                if (field.isAnnotationPresent(annotationClass)) {
+                    result.add(field);
+                }
+            }
+            beanClass = beanClass.getSuperclass();
+        }
+        return result;
     }
 
 
