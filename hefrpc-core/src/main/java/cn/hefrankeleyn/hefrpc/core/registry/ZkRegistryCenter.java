@@ -10,6 +10,7 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 import java.util.Objects;
@@ -23,17 +24,23 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     private CuratorFramework client = null;
     private TreeCache treeCache=null;
+
+    @Value("${hefrpc.zkservers}")
+    private String zkServers;
+
+    @Value("${hefrpc.zkroot}")
+    private String zkRoot;
     @Override
     public void start() {
         // 间隔1秒，重试次数3次
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
         client = CuratorFrameworkFactory.builder()
                 .retryPolicy(retryPolicy)
-                .connectString("localhost:2181")
-                .namespace("hefrpc")
+                .connectString(zkServers)
+                .namespace(zkRoot)
                 .build();
         client.start();
-        System.out.println("====>> zk client start.");
+        System.out.println(Strings.lenientFormat("====>> zk client start to server [ %s/%s].", zkServers, zkRoot));
     }
 
     @Override

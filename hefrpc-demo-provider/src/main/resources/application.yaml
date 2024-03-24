@@ -2,3 +2,6 @@ app:
   id: app1
   namespace: public
   env: dev
+hefrpc:
+  zkservers: localhost:2181
+  zkroot: hefrpc
