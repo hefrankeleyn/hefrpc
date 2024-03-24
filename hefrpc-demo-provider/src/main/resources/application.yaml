@@ -1,0 +1,4 @@
+app:
+  id: app1
+  namespace: public
+  env: dev

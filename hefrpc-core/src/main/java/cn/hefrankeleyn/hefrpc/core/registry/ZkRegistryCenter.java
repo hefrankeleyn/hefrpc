@@ -2,6 +2,7 @@ package cn.hefrankeleyn.hefrpc.core.registry;
 
 import cn.hefrankeleyn.hefrpc.core.api.RegistryCenter;
 import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
+import cn.hefrankeleyn.hefrpc.core.meta.ServiceMeta;
 import com.google.common.base.Strings;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
@@ -45,9 +46,9 @@ public class ZkRegistryCenter implements RegistryCenter {
     }
 
     @Override
-    public void register(String service, InstanceMeta instance) {
+    public void register(ServiceMeta serviceMeta, InstanceMeta instance) {
         try {
-            String servicePath = Strings.lenientFormat("/%s", service);
+            String servicePath = Strings.lenientFormat("/%s", serviceMeta.toPath());
             // 创建服务的持久化节点
             if (Objects.isNull(client.checkExists().forPath(servicePath))) {
                 client.create().withMode(CreateMode.PERSISTENT).forPath(servicePath, "service".getBytes());
@@ -64,9 +65,9 @@ public class ZkRegistryCenter implements RegistryCenter {
     }
 
     @Override
-    public void unregister(String service, InstanceMeta instance) {
+    public void unregister(ServiceMeta serviceMeta, InstanceMeta instance) {
         try {
-            String servicePath = Strings.lenientFormat("/%s", service);
+            String servicePath = Strings.lenientFormat("/%s", serviceMeta.toPath());
             // 如果持久化节点不存在，直接返回
             if (Objects.isNull(client.checkExists().forPath(servicePath))) {
                 return;
@@ -85,9 +86,9 @@ public class ZkRegistryCenter implements RegistryCenter {
     }
 
     @Override
-    public List<InstanceMeta> findAll(String service) {
+    public List<InstanceMeta> findAll(ServiceMeta serviceMeta) {
         try {
-            String servicePath = Strings.lenientFormat("/%s", service);
+            String servicePath = Strings.lenientFormat("/%s", serviceMeta.toPath());
             List<String> nodes = client.getChildren().forPath(servicePath);
             List<InstanceMeta> instanceList = nodes.stream().map(node -> new InstanceMeta("http", node.split("_")[0], Integer.parseInt(node.split("_")[1])))
                     .collect(Collectors.toList());
@@ -100,9 +101,9 @@ public class ZkRegistryCenter implements RegistryCenter {
     }
 
     @Override
-    public void subscribe(String service, ChangedListener changedListener) {
+    public void subscribe(ServiceMeta serviceMeta, ChangedListener changedListener) {
         try {
-            String servicePath = Strings.lenientFormat("/%s", service);
+            String servicePath = Strings.lenientFormat("/%s", serviceMeta.toPath());
             treeCache = TreeCache.newBuilder(client, servicePath)
                     .setCacheData(true) // 打开缓存，避免频繁交互
                     .setMaxDepth(2) // 设置最大的深度
@@ -110,7 +111,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             treeCache.getListenable().addListener((cf, event) -> {
                 // 节点变动，会执行
                 System.out.println("===> zk subscribe event: " + event);
-                List<InstanceMeta> instanceMetaList = findAll(service);
+                List<InstanceMeta> instanceMetaList = findAll(serviceMeta);
                 changedListener.fire(new Event(instanceMetaList));
             });
             treeCache.start();

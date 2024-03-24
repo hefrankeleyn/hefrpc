@@ -7,6 +7,7 @@ import cn.hefrankeleyn.hefrpc.core.api.RegistryCenter;
 import cn.hefrankeleyn.hefrpc.core.api.Router;
 import cn.hefrankeleyn.hefrpc.core.handler.HefConsumerHandler;
 import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
+import cn.hefrankeleyn.hefrpc.core.meta.ServiceMeta;
 import cn.hefrankeleyn.hefrpc.core.utils.HefRpcMethodUtils;
 import com.google.common.base.Strings;
 import org.springframework.beans.BeansException;
@@ -30,6 +31,10 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
     private Environment environment;
     private Map<String, Object> stub = new HashMap<>();
 
+    private String app;
+    private String namespace;
+    private String env;
+
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
@@ -39,8 +44,11 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
     public void scanningFields() {
         RegistryCenter registryCenter = applicationContext.getBean(RegistryCenter.class);
-        Router router = applicationContext.getBean(Router.class);
-        LoadBalance loadBalance = applicationContext.getBean(LoadBalance.class);
+        Router<InstanceMeta> router = applicationContext.getBean(Router.class);
+        LoadBalance<InstanceMeta> loadBalance = applicationContext.getBean(LoadBalance.class);
+        app = environment.getProperty("app.id");
+        namespace = environment.getProperty("app.namespace");
+        env = environment.getProperty("app.env");
         HefrpcContent hefrpcContent = new HefrpcContent(loadBalance, router);
         String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
         for (String beanDefinitionName : beanDefinitionNames) {
@@ -75,10 +83,16 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
     private Object createFromRegistry(Class<?> type, HefrpcContent hefrpcContent, RegistryCenter registryCenter) {
         String serviceName = type.getCanonicalName();
-        List<InstanceMeta> instanceMetaList = registryCenter.findAll(serviceName);
+        ServiceMeta serviceMeta = ServiceMeta.builder()
+                .name(serviceName)
+                .app(app)
+                .env(env)
+                .namespace(namespace)
+                .build();
+        List<InstanceMeta> instanceMetaList = registryCenter.findAll(serviceMeta);
         System.out.println("====> nodes map to providers");
         instanceMetaList.forEach(System.out::println);
-        registryCenter.subscribe(serviceName, (event)->{
+        registryCenter.subscribe(serviceMeta, (event)->{
             instanceMetaList.clear();
             instanceMetaList.addAll(event.getData());
         });

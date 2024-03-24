@@ -4,6 +4,7 @@ import cn.hefrankeleyn.hefrpc.core.annotation.HefProvider;
 import cn.hefrankeleyn.hefrpc.core.api.RegistryCenter;
 import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
 import cn.hefrankeleyn.hefrpc.core.meta.ProviderMeta;
+import cn.hefrankeleyn.hefrpc.core.meta.ServiceMeta;
 import cn.hefrankeleyn.hefrpc.core.utils.HefRpcMethodUtils;
 
 import com.google.common.base.Strings;
@@ -33,6 +34,10 @@ public class ProviderBootstrap implements ApplicationContextAware, EnvironmentAw
 
     private InstanceMeta instance;
 
+    private String app;
+    private String namespace;
+    private String env;
+
     private RegistryCenter registryCenter;
 
     // 1. 缓存，加快访问速度； 2.
@@ -54,6 +59,9 @@ public class ProviderBootstrap implements ApplicationContextAware, EnvironmentAw
     public void start() {
         try {
             Integer port = Integer.parseInt(environment.getProperty("server.port"));
+            app = environment.getProperty("app.id");
+            namespace = environment.getProperty("app.namespace");
+            env = environment.getProperty("app.env");
             String hostAddress = InetAddress.getLocalHost().getHostAddress();
             instance = new InstanceMeta("http", hostAddress, port);
             registryCenter.start();
@@ -71,13 +79,23 @@ public class ProviderBootstrap implements ApplicationContextAware, EnvironmentAw
 
 
     private void registerService(String serviceName) {
-        RegistryCenter registryCenter = applicationContext.getBean(RegistryCenter.class);
-        registryCenter.register(serviceName, instance);
+        ServiceMeta serviceMeta = ServiceMeta.builder()
+                .name(serviceName)
+                .app(app)
+                .env(env)
+                .namespace(namespace)
+                .build();
+        registryCenter.register(serviceMeta, instance);
     }
 
     private void unregisterService(String serviceName) {
-        RegistryCenter registryCenter = applicationContext.getBean(RegistryCenter.class);
-        registryCenter.unregister(serviceName, instance);
+        ServiceMeta serviceMeta = ServiceMeta.builder()
+                .name(serviceName)
+                .app(app)
+                .env(env)
+                .namespace(namespace)
+                .build();
+        registryCenter.unregister(serviceMeta, instance);
     }
 
     /**

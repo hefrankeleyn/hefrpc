@@ -3,3 +3,8 @@ server:
 
 hefrpc:
   provicer: http://localhost:8081,http://localhost:8082
+
+app:
+  id: app1
+  namespace: public
+  env: dev
