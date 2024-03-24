@@ -2,6 +2,7 @@ package cn.hefrankeleyn.hefrpc.core.provider;
 
 import cn.hefrankeleyn.hefrpc.core.api.RpcRequest;
 import cn.hefrankeleyn.hefrpc.core.api.RpcResponse;
+import cn.hefrankeleyn.hefrpc.core.meta.ProviderMeta;
 import cn.hefrankeleyn.hefrpc.core.utils.TypeUtils;
 import com.google.common.base.Strings;
 import org.springframework.util.MultiValueMap;

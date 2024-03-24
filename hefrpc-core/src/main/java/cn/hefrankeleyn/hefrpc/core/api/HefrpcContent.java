@@ -1,5 +1,6 @@
 package cn.hefrankeleyn.hefrpc.core.api;
 
+import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
 import com.google.common.collect.Lists;
 
 import java.util.List;
@@ -8,15 +9,15 @@ import java.util.List;
  * @Date 2024/3/20
  * @Author lifei
  */
-public class HefrpcContent<T> {
+public class HefrpcContent {
 
     private List<Filter> filterList = Lists.newArrayList();
-    private LoadBalance<T> loadBalance;
-    private Router<T> router;
+    private LoadBalance<InstanceMeta> loadBalance;
+    private Router<InstanceMeta> router;
 
     public HefrpcContent(){}
 
-    public HefrpcContent(LoadBalance<T> loadBalance, Router<T> router) {
+    public HefrpcContent(LoadBalance<InstanceMeta> loadBalance, Router<InstanceMeta> router) {
         this.loadBalance = loadBalance;
         this.router = router;
     }
@@ -29,19 +30,19 @@ public class HefrpcContent<T> {
         this.filterList = filterList;
     }
 
-    public LoadBalance<T> getLoadBalance() {
+    public LoadBalance<InstanceMeta> getLoadBalance() {
         return loadBalance;
     }
 
-    public void setLoadBalance(LoadBalance<T> loadBalance) {
+    public void setLoadBalance(LoadBalance<InstanceMeta> loadBalance) {
         this.loadBalance = loadBalance;
     }
 
-    public Router<T> getRouter() {
+    public Router<InstanceMeta> getRouter() {
         return router;
     }
 
-    public void setRouter(Router<T> router) {
+    public void setRouter(Router<InstanceMeta> router) {
         this.router = router;
     }
 

@@ -1,5 +1,6 @@
 package cn.hefrankeleyn.hefrpc.core.api;
 
+import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
 import cn.hefrankeleyn.hefrpc.core.registry.ChangedListener;
 
 import java.util.List;
@@ -16,22 +17,22 @@ public interface RegistryCenter {
     void stop();
 
     // provider端：注册服务, service 表示服务，instance 表示当前节点
-    void register(String service, String instance);
+    void register(String service, InstanceMeta instance);
 
     // provider端：取消注册
-    void unregister(String service, String instance);
+    void unregister(String service, InstanceMeta instance);
 
     // consumer端： 获取某个服务端所有事例
-    List<String> findAll(String service);
+    List<InstanceMeta> findAll(String service);
 
     // consumer 端：订阅， 监听节点变化
     void subscribe(String service, ChangedListener changedListener);
 
     class StaticRegistryCenter implements RegistryCenter {
 
-        private List<String> providers;
+        private List<InstanceMeta> providers;
 
-        public StaticRegistryCenter(List<String> providers) {
+        public StaticRegistryCenter(List<InstanceMeta> providers) {
             this.providers = providers;
         }
 
@@ -46,17 +47,17 @@ public interface RegistryCenter {
         }
 
         @Override
-        public void register(String service, String instance) {
+        public void register(String service, InstanceMeta instance) {
 
         }
 
         @Override
-        public void unregister(String service, String instance) {
+        public void unregister(String service, InstanceMeta instance) {
 
         }
 
         @Override
-        public List<String> findAll(String service) {
+        public List<InstanceMeta> findAll(String service) {
             return providers;
         }
 

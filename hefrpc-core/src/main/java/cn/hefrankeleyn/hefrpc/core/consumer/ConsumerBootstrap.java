@@ -6,6 +6,7 @@ import cn.hefrankeleyn.hefrpc.core.api.LoadBalance;
 import cn.hefrankeleyn.hefrpc.core.api.RegistryCenter;
 import cn.hefrankeleyn.hefrpc.core.api.Router;
 import cn.hefrankeleyn.hefrpc.core.handler.HefConsumerHandler;
+import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
 import cn.hefrankeleyn.hefrpc.core.utils.HefRpcMethodUtils;
 import com.google.common.base.Strings;
 import org.springframework.beans.BeansException;
@@ -74,15 +75,14 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
     private Object createFromRegistry(Class<?> type, HefrpcContent hefrpcContent, RegistryCenter registryCenter) {
         String serviceName = type.getCanonicalName();
-        List<String> nodes = registryCenter.findAll(serviceName);
-        List<String> providers = mapToUrls(nodes);
+        List<InstanceMeta> instanceMetaList = registryCenter.findAll(serviceName);
         System.out.println("====> nodes map to providers");
-        providers.forEach(System.out::println);
+        instanceMetaList.forEach(System.out::println);
         registryCenter.subscribe(serviceName, (event)->{
-            providers.clear();
-            providers.addAll(mapToUrls(event.getNodes()));
+            instanceMetaList.clear();
+            instanceMetaList.addAll(event.getData());
         });
-        return fetchProxyObj(type, providers, hefrpcContent);
+        return fetchProxyObj(type, instanceMetaList, hefrpcContent);
     }
 
     private List<String> mapToUrls(List<String> nodes) {
@@ -90,9 +90,15 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                 .collect(Collectors.toList());
     }
 
-    private Object fetchProxyObj(Class<?> service, List<String> providers, HefrpcContent hefrpcContent) {
+    private List<String> mapInstanceToUrls(List<InstanceMeta> nodes) {
+        return  nodes.stream().map(node->Strings.lenientFormat("%s://%s:%s/",
+                        node.getSchema(), node.getHost(), node.getPort()))
+                .collect(Collectors.toList());
+    }
+
+    private Object fetchProxyObj(Class<?> service, List<InstanceMeta> instanceMetaList, HefrpcContent hefrpcContent) {
         return Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[]{service},
-                new HefConsumerHandler(service.getCanonicalName(), providers, hefrpcContent));
+                new HefConsumerHandler(service.getCanonicalName(), instanceMetaList, hefrpcContent));
     }
 
     @Override

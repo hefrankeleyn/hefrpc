@@ -5,6 +5,7 @@ import cn.hefrankeleyn.hefrpc.core.api.RpcRequest;
 import cn.hefrankeleyn.hefrpc.core.api.RpcResponse;
 import cn.hefrankeleyn.hefrpc.core.consumer.HttpInvoker;
 import cn.hefrankeleyn.hefrpc.core.consumer.http.OkHttpInvoker;
+import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
 import cn.hefrankeleyn.hefrpc.core.utils.HefRpcMethodUtils;
 import cn.hefrankeleyn.hefrpc.core.utils.TypeUtils;
 
@@ -19,14 +20,14 @@ import java.util.List;
 public class HefConsumerHandler implements InvocationHandler {
 
     private String service;
-    private List<String> providers;
+    private List<InstanceMeta> instanceMetaList;
     private HefrpcContent hefrpcContent;
 
     private HttpInvoker httpInvoker = new OkHttpInvoker();
 
-    public HefConsumerHandler(String service, List<String> providers, HefrpcContent hefrpcContent) {
+    public HefConsumerHandler(String service, List<InstanceMeta> instanceMetaList, HefrpcContent hefrpcContent) {
         this.service = service;
-        this.providers = providers;
+        this.instanceMetaList = instanceMetaList;
         this.hefrpcContent = hefrpcContent;
     }
 
@@ -50,7 +51,8 @@ public class HefConsumerHandler implements InvocationHandler {
 
     private RpcResponse fetchHttpRpcResponse(RpcRequest request, Method method) {
         try {
-            String url = (String) hefrpcContent.getLoadBalance().choose(hefrpcContent.getRouter().route(providers));
+            InstanceMeta instanceMeta = hefrpcContent.getLoadBalance().choose(hefrpcContent.getRouter().route(instanceMetaList));
+            String url = instanceMeta.toUrl();
             System.out.println("loadBalance.choose(urls) => " + url);
             RpcResponse rpcResponse = httpInvoker.post(request, url);
             RpcResponse result = TypeUtils.getRpcResponse(method, rpcResponse);

@@ -2,14 +2,10 @@ package cn.hefrankeleyn.hefrpc.core.provider;
 
 import cn.hefrankeleyn.hefrpc.core.annotation.HefProvider;
 import cn.hefrankeleyn.hefrpc.core.api.RegistryCenter;
-import cn.hefrankeleyn.hefrpc.core.api.RpcRequest;
-import cn.hefrankeleyn.hefrpc.core.api.RpcResponse;
-import cn.hefrankeleyn.hefrpc.core.registry.ZkRegistryCenter;
+import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
+import cn.hefrankeleyn.hefrpc.core.meta.ProviderMeta;
 import cn.hefrankeleyn.hefrpc.core.utils.HefRpcMethodUtils;
 
-import static com.google.common.base.Preconditions.*;
-
-import cn.hefrankeleyn.hefrpc.core.utils.TypeUtils;
 import com.google.common.base.Strings;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -35,7 +31,7 @@ public class ProviderBootstrap implements ApplicationContextAware, EnvironmentAw
     private ApplicationContext applicationContext;
     private Environment environment;
 
-    private String instance;
+    private InstanceMeta instance;
 
     private RegistryCenter registryCenter;
 
@@ -57,9 +53,9 @@ public class ProviderBootstrap implements ApplicationContextAware, EnvironmentAw
 
     public void start() {
         try {
-            String port = environment.getProperty("server.port");
+            Integer port = Integer.parseInt(environment.getProperty("server.port"));
             String hostAddress = InetAddress.getLocalHost().getHostAddress();
-            instance = Strings.lenientFormat("%s_%s", hostAddress, port);
+            instance = new InstanceMeta("http", hostAddress, port);
             registryCenter.start();
             skeletion.keySet().forEach(this::registerService);
         } catch (Exception e) {

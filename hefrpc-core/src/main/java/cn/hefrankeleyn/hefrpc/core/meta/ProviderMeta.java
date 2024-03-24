@@ -1,4 +1,4 @@
-package cn.hefrankeleyn.hefrpc.core.provider;
+package cn.hefrankeleyn.hefrpc.core.meta;
 
 import java.lang.reflect.Method;
 

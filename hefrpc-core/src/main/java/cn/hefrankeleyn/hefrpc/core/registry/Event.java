@@ -1,5 +1,7 @@
 package cn.hefrankeleyn.hefrpc.core.registry;
 
+import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
+
 import java.util.List;
 
 /**
@@ -7,27 +9,26 @@ import java.util.List;
  * @Author lifei
  */
 public class Event {
-    List<String> nodes;
+    List<InstanceMeta> data;
 
     public Event(){}
 
-    public Event(List<String> nodes) {
-        this.nodes = nodes;
+    public Event(List<InstanceMeta> data) {
+        this.data = data;
     }
 
-    public List<String> getNodes() {
-        return nodes;
+    public List<InstanceMeta> getData() {
+        return data;
     }
 
-    public void setNodes(List<String> nodes) {
-        this.nodes = nodes;
+    public void setData(List<InstanceMeta> data) {
+        this.data = data;
     }
-
 
     @Override
     public String toString() {
         return "Event{" +
-                "nodes=" + nodes +
+                "data=" + data +
                 '}';
     }
 }
