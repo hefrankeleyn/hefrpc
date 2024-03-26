@@ -17,15 +17,7 @@ import java.util.*;
 @HefProvider
 public class OrderServiceImpl implements OrderService {
 
-    public OrderServiceImpl() {
-        try {
-            System.out.println("初始化order ....");
-            Thread.sleep(1L);
-            System.out.println("初始化order ....完成");
-        }catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+    public OrderServiceImpl() {}
     @Override
     public Order findById(Integer oid) {
         return new Order(oid, 26.2d);
@@ -79,8 +71,4 @@ public class OrderServiceImpl implements OrderService {
         return map;
     }
 
-    @PostConstruct
-    public void beanPostConstruct() {
-        System.out.println("当前的Bean是：" + OrderServiceImpl.class.getName());
-    }
 }

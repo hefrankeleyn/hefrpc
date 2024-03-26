@@ -10,6 +10,8 @@ import cn.hefrankeleyn.hefrpc.core.utils.HefRpcMethodUtils;
 import com.google.common.base.Strings;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 
 import org.springframework.context.ApplicationContext;
@@ -28,6 +30,8 @@ import java.util.*;
  * @Author lifei
  */
 public class ProviderBootstrap implements ApplicationContextAware, EnvironmentAware {
+
+    private static final Logger log = LoggerFactory.getLogger(ProviderBootstrap.class);
 
     private ApplicationContext applicationContext;
     private Environment environment;
@@ -116,7 +120,7 @@ public class ProviderBootstrap implements ApplicationContextAware, EnvironmentAw
                 providerMeta.setMethodSign(HefRpcMethodUtils.createMethodSign(method));
                 providerMeta.setMethod(method);
                 providerMeta.setService(o);
-                System.out.println(providerMeta);
+                log.info(providerMeta.toString());
                 skeletion.add(className, providerMeta);
             }
         }

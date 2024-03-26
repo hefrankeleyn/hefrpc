@@ -10,3 +10,9 @@ app:
   id: app1
   namespace: public
   env: dev
+
+logging:
+  level:
+    root: error
+    cn.hefrankeleyn.hefrpc: info
+    com.hhrpc.hefrpc.demo: info

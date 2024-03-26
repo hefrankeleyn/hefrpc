@@ -4,6 +4,8 @@ import cn.hefrankeleyn.hefrpc.core.api.RegistryCenter;
 import cn.hefrankeleyn.hefrpc.core.provider.ProviderBootstrap;
 import cn.hefrankeleyn.hefrpc.core.provider.ProviderInvoker;
 import cn.hefrankeleyn.hefrpc.core.registry.zk.ZkRegistryCenter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +17,8 @@ import org.springframework.core.annotation.Order;
  */
 @Configuration
 public class ProviderConf {
+
+    private static final Logger log = LoggerFactory.getLogger(ProviderConf.class);
 
     @Bean
     public ProviderBootstrap providerBootstrap() {
@@ -37,9 +41,9 @@ public class ProviderConf {
     @Order(Integer.MIN_VALUE)
     public ApplicationRunner providerStart(ProviderBootstrap providerBootstrap) {
         return x->{
-            System.out.println("providerBootstrap start....");
+            log.info("providerBootstrap start....");
             providerBootstrap.start();
-            System.out.println("providerBootstap started");
+            log.info("providerBootstap started");
         };
     }
 

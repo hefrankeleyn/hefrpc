@@ -10,6 +10,8 @@ import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
 import cn.hefrankeleyn.hefrpc.core.meta.ServiceMeta;
 import cn.hefrankeleyn.hefrpc.core.utils.HefRpcMethodUtils;
 import com.google.common.base.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -18,7 +20,10 @@ import org.springframework.core.env.Environment;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -26,6 +31,7 @@ import java.util.stream.Collectors;
  * @Author lifei
  */
 public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAware {
+    private static final Logger log = LoggerFactory.getLogger(ConsumerBootstrap.class);
 
     private ApplicationContext applicationContext;
     private Environment environment;
@@ -90,7 +96,7 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                 .namespace(namespace)
                 .build();
         List<InstanceMeta> instanceMetaList = registryCenter.findAll(serviceMeta);
-        System.out.println("====> nodes map to providers");
+        log.info("====> nodes map to providers");
         instanceMetaList.forEach(System.out::println);
         registryCenter.subscribe(serviceMeta, (event)->{
             instanceMetaList.clear();

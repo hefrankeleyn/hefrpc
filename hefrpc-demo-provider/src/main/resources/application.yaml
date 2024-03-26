@@ -5,3 +5,9 @@ app:
 hefrpc:
   zkservers: localhost:2181
   zkroot: hefrpc
+
+logging:
+  level:
+    root: error
+    cn.hefrankeleyn.hefrpc: info
+    com.hhrpc.hefrpc.demo: info

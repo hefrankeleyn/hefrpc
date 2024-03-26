@@ -8,6 +8,8 @@ import cn.hefrankeleyn.hefrpc.core.consumer.http.OkHttpInvoker;
 import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
 import cn.hefrankeleyn.hefrpc.core.utils.HefRpcMethodUtils;
 import cn.hefrankeleyn.hefrpc.core.utils.TypeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -18,6 +20,7 @@ import java.util.List;
  * @Author lifei
  */
 public class HefConsumerHandler implements InvocationHandler {
+    private static final Logger log = LoggerFactory.getLogger(HefConsumerHandler.class);
 
     private String service;
     private List<InstanceMeta> instanceMetaList;
@@ -53,7 +56,7 @@ public class HefConsumerHandler implements InvocationHandler {
         try {
             InstanceMeta instanceMeta = hefrpcContent.getLoadBalance().choose(hefrpcContent.getRouter().route(instanceMetaList));
             String url = instanceMeta.toUrl();
-            System.out.println("loadBalance.choose(urls) => " + url);
+            log.debug("loadBalance.choose(urls) => " + url);
             RpcResponse rpcResponse = httpInvoker.post(request, url);
             RpcResponse result = TypeUtils.getRpcResponse(method, rpcResponse);
             return result;

@@ -26,7 +26,6 @@ public class HefRpcMethodUtils {
     public static boolean checkLocalMethod(String method) {
         Method[] methods = Object.class.getMethods();
         Set<String> localMethodSet = Arrays.stream(methods).map(Method::getName).collect(Collectors.toSet());
-        System.out.println(localMethodSet);
         return localMethodSet.contains(method);
     }
 
