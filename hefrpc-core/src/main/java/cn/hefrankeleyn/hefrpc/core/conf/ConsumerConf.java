@@ -1,5 +1,6 @@
 package cn.hefrankeleyn.hefrpc.core.conf;
 
+import cn.hefrankeleyn.hefrpc.core.api.Filter;
 import cn.hefrankeleyn.hefrpc.core.api.LoadBalance;
 import cn.hefrankeleyn.hefrpc.core.api.RegistryCenter;
 import cn.hefrankeleyn.hefrpc.core.api.Router;
@@ -7,6 +8,7 @@ import cn.hefrankeleyn.hefrpc.core.cluster.RoundRibonLoadBalance;
 import cn.hefrankeleyn.hefrpc.core.consumer.ConsumerBootstrap;
 import cn.hefrankeleyn.hefrpc.core.consumer.HttpInvoker;
 import cn.hefrankeleyn.hefrpc.core.consumer.http.OkHttpInvoker;
+import cn.hefrankeleyn.hefrpc.core.filter.CacheFilter;
 import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
 import cn.hefrankeleyn.hefrpc.core.registry.zk.ZkRegistryCenter;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,6 +58,16 @@ public class ConsumerConf {
     @Bean
     public HttpInvoker httpInvoker() {
         return new OkHttpInvoker();
+    }
+
+    @Bean
+    public Filter filter01() {
+        return Filter.DEFAULT;
+    }
+
+    @Bean
+    public Filter filter02() {
+        return new CacheFilter();
     }
     
 }

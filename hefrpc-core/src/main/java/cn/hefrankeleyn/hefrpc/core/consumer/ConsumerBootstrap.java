@@ -1,15 +1,13 @@
 package cn.hefrankeleyn.hefrpc.core.consumer;
 
 import cn.hefrankeleyn.hefrpc.core.annotation.HefConsumer;
-import cn.hefrankeleyn.hefrpc.core.api.HefrpcContent;
-import cn.hefrankeleyn.hefrpc.core.api.LoadBalance;
-import cn.hefrankeleyn.hefrpc.core.api.RegistryCenter;
-import cn.hefrankeleyn.hefrpc.core.api.Router;
+import cn.hefrankeleyn.hefrpc.core.api.*;
 import cn.hefrankeleyn.hefrpc.core.handler.HefConsumerHandler;
 import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
 import cn.hefrankeleyn.hefrpc.core.meta.ServiceMeta;
 import cn.hefrankeleyn.hefrpc.core.utils.HefRpcMethodUtils;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -20,10 +18,7 @@ import org.springframework.core.env.Environment;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -52,10 +47,12 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
         RegistryCenter registryCenter = applicationContext.getBean(RegistryCenter.class);
         Router<InstanceMeta> router = applicationContext.getBean(Router.class);
         LoadBalance<InstanceMeta> loadBalance = applicationContext.getBean(LoadBalance.class);
+        List<Filter> filters = Lists.newArrayList(applicationContext.getBeansOfType(Filter.class).values());
+        HefrpcContent hefrpcContent = new HefrpcContent(loadBalance, router);
+        hefrpcContent.setFilterList(filters);
         app = environment.getProperty("app.id");
         namespace = environment.getProperty("app.namespace");
         env = environment.getProperty("app.env");
-        HefrpcContent hefrpcContent = new HefrpcContent(loadBalance, router);
         String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
         for (String beanDefinitionName : beanDefinitionNames) {
             Object bean = applicationContext.getBean(beanDefinitionName);

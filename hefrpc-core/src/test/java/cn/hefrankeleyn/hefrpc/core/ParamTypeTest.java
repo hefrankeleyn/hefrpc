@@ -4,6 +4,8 @@ import cn.hefrankeleyn.hefrpc.core.utils.HefRpcMethodUtils;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @Date 2024/3/13
@@ -17,6 +19,16 @@ public class ParamTypeTest {
         Class<Integer> integerClass = Integer.class;
         Integer.valueOf(1);
         System.out.println(integerClass.getName());
+    }
+
+    @Test
+    public void mapPutTest() {
+        Map<String, String> oneMap = new ConcurrentHashMap<>();
+//        oneMap.putIfAbsent("aa", null);
+        oneMap.putIfAbsent("aa", "001");
+        System.out.println(oneMap.get("aa"));
+        oneMap.putIfAbsent("aa", "123");
+        System.out.println(oneMap.get("aa"));
     }
 
     @Test
