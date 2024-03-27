@@ -1,5 +1,8 @@
 package com.hhrpc.hefrpc.demo.consumer;
 
+import cn.hefrankeleyn.hefrpc.core.api.Filter;
+import cn.hefrankeleyn.hefrpc.core.filter.MockFilter;
+import cn.hefrankeleyn.hefrpc.core.utils.MockUtils;
 import cn.hefrankeleyn.hefrpc.demo.api.User;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -15,6 +18,14 @@ import java.util.List;
  * @Author lifei
  */
 public class BeanTest {
+
+    @Test
+    public void mockTest() {
+        User user = new User();
+        System.out.println(user);
+        Object mock = MockUtils.mock(user.getClass(), null);
+        System.out.println(mock);
+    }
 
     @Test
     public void userTest() throws NoSuchMethodException {

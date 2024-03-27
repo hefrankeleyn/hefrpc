@@ -9,6 +9,7 @@ import cn.hefrankeleyn.hefrpc.core.consumer.ConsumerBootstrap;
 import cn.hefrankeleyn.hefrpc.core.consumer.HttpInvoker;
 import cn.hefrankeleyn.hefrpc.core.consumer.http.OkHttpInvoker;
 import cn.hefrankeleyn.hefrpc.core.filter.CacheFilter;
+import cn.hefrankeleyn.hefrpc.core.filter.MockFilter;
 import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
 import cn.hefrankeleyn.hefrpc.core.registry.zk.ZkRegistryCenter;
 import org.springframework.beans.factory.annotation.Value;
@@ -67,7 +68,9 @@ public class ConsumerConf {
 
     @Bean
     public Filter filter02() {
-        return new CacheFilter();
+//        return new CacheFilter();
+        return new MockFilter();
     }
+
     
 }
