@@ -6,7 +6,7 @@
         <groupId>cn.hefrankeleyn</groupId>
         <artifactId>hefrpc</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath/> <!-- lookup parent from repository -->
+<!--        <relativePath/> &lt;!&ndash; lookup parent from repository &ndash;&gt;-->
     </parent>
     <groupId>com.hhrpc</groupId>
     <artifactId>hefrpc-demo-consumer</artifactId>

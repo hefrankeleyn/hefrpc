@@ -2,12 +2,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.3</version>
-        <relativePath/> <!-- lookup parent from repository -->
-    </parent>
     <groupId>cn.hefrankeleyn</groupId>
     <artifactId>hefrpc</artifactId>
     <version>0.0.1-SNAPSHOT</version>
@@ -15,30 +9,17 @@
     <description>hefrpc</description>
     <packaging>pom</packaging>
     <properties>
+        <spring.boot.version>3.2.3</spring.boot.version>
         <java.version>17</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
 
     <modules>
         <module>hefrpc-core</module>
         <module>hefrpc-demo-api</module>
-        <module>hefrpc-demo-provider</module>
+<!--        <module>hefrpc-demo-provider</module>-->
+<!--        <module>hefrpc-demo-consumer</module>-->
     </modules>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>
