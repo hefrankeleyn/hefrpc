@@ -13,13 +13,15 @@
         <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
+        <junit.version>4.13.2</junit.version>
+        <maven-surefire-plugin.version>3.2.3</maven-surefire-plugin.version>
     </properties>
 
     <modules>
         <module>hefrpc-core</module>
         <module>hefrpc-demo-api</module>
-<!--        <module>hefrpc-demo-provider</module>-->
-<!--        <module>hefrpc-demo-consumer</module>-->
+        <module>hefrpc-demo-provider</module>
+        <module>hefrpc-demo-consumer</module>
     </modules>
 
 </project>

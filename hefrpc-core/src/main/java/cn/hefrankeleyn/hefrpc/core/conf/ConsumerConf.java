@@ -68,8 +68,8 @@ public class ConsumerConf {
 
     @Bean
     public Filter filter02() {
-//        return new CacheFilter();
-        return new MockFilter();
+        return new CacheFilter();
+//        return new MockFilter();
     }
 
     
