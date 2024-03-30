@@ -1,0 +1,18 @@
+server:
+  port: 8088
+
+hefrpc:
+  provicer: http://localhost:8081,http://localhost:8082
+  zkservers: localhost:2182
+  zkroot: hefrpc
+
+app:
+  id: app1
+  namespace: public
+  env: dev
+
+logging:
+  level:
+    root: error
+    cn.hefrankeleyn.hefrpc: info
+    com.hhrpc.hefrpc.demo: info

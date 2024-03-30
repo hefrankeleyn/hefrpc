@@ -3,16 +3,18 @@ package com.hhrpc.hefrpc.demo.consumer;
 import cn.hefrankeleyn.hefrpc.demo.api.User;
 import cn.hefrankeleyn.hefrpc.demo.provider.HefrpcDemoProviderApplication;
 import jakarta.annotation.Resource;
+import org.apache.curator.test.TestingServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
 
 @SpringBootTest
 class HefrpcDemoConsumerApplicationTests {
+
+    private static TestingServer testingServer;
 
     @Resource
     private HefrpcDemoConsumerApplication hefrpcDemoConsumerApplication;
@@ -20,9 +22,15 @@ class HefrpcDemoConsumerApplicationTests {
     private static ApplicationContext providerContext = null;
     @BeforeAll
     public static void init() {
-        providerContext = SpringApplication.run(HefrpcDemoProviderApplication.class, new String[]{
-                "--server.port=8084"
-        });
+        try {
+            testingServer = new TestingServer(2182);
+            providerContext = SpringApplication.run(HefrpcDemoProviderApplication.class, new String[]{
+                    "--server.port=8084", "--hefrpc.zkservers=localhost:2182"
+            });
+        }catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Test
@@ -33,7 +41,13 @@ class HefrpcDemoConsumerApplicationTests {
 
     @AfterAll
     public static void stop() {
-        SpringApplication.exit(providerContext, ()->1);
+        try {
+            SpringApplication.exit(providerContext, ()->1);
+            testingServer.stop();
+        }catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
 }
