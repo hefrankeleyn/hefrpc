@@ -30,7 +30,7 @@ public class HefrpcDemoProviderApplication {
 
 	// 使用HTTP + JSON实现序列化
 	@RequestMapping(value = "/")
-	public RpcResponse invoke(@RequestBody RpcRequest request) {
+	public RpcResponse<Object> invoke(@RequestBody RpcRequest request) {
 		return providerInvoker.invoke(request);
 	}
 
@@ -46,7 +46,7 @@ public class HefrpcDemoProviderApplication {
 			request.setService("cn.hefrankeleyn.hefrpc.demo.api.UserService");
 			request.setMethodSign("findById#int");
 			request.setArgs(new Object[]{100});
-			RpcResponse response = providerInvoker.invoke(request);
+			RpcResponse<Object> response = providerInvoker.invoke(request);
 			System.out.println(response.getData());
 		};
 	}

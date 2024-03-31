@@ -135,7 +135,7 @@ public class TypeUtils {
         return result;
     }
 
-    public static RpcResponse getRpcResponse(Method method, RpcResponse rpcResponse) throws IOException {
+    public static RpcResponse<?> getRpcResponse(Method method, RpcResponse<?> rpcResponse) throws IOException {
         Gson gson = new Gson();
         String dataStr = gson.toJson(rpcResponse);
         Class<?> realType = TypeUtils.cast(method.getReturnType());
@@ -161,7 +161,6 @@ public class TypeUtils {
                 }
             }
         }
-        RpcResponse result = gson.fromJson(dataStr, parameterized.getType());
-        return result;
+        return gson.fromJson(dataStr, parameterized.getType());
     }
 }

@@ -43,8 +43,7 @@ public class HefConsumerHandler implements InvocationHandler {
         }
         RpcRequest request = new RpcRequest();
         request.setArgs(args);
-        String methodSign = HefRpcMethodUtils.createMethodSign(method);
-        request.setMethodSign(methodSign);
+        request.setMethodSign(HefRpcMethodUtils.createMethodSign(method));
         request.setService(this.service);
         List<Filter> filterList = hefrpcContent.getFilterList();
         for (Filter filter : filterList) {
@@ -54,9 +53,9 @@ public class HefConsumerHandler implements InvocationHandler {
                 return o;
             }
         }
-        RpcResponse response = fetchHttpRpcResponse(request, method);
+        RpcResponse<?> response = fetchHttpRpcResponse(request, method);
         if (!response.isStatus()) {
-            return null;
+            throw new RuntimeException(response.getEx());
         }
         Object result = response.getData();
         for (Filter filter : filterList) {
@@ -68,14 +67,13 @@ public class HefConsumerHandler implements InvocationHandler {
         return result;
     }
 
-    private RpcResponse fetchHttpRpcResponse(RpcRequest request, Method method) {
+    private RpcResponse<?> fetchHttpRpcResponse(RpcRequest request, Method method) {
         try {
             InstanceMeta instanceMeta = hefrpcContent.getLoadBalance().choose(hefrpcContent.getRouter().route(instanceMetaList));
             String url = instanceMeta.toUrl();
             log.debug("loadBalance.choose(urls) => " + url);
-            RpcResponse rpcResponse = httpInvoker.post(request, url);
-            RpcResponse result = TypeUtils.getRpcResponse(method, rpcResponse);
-            return result;
+            RpcResponse<?> rpcResponse = httpInvoker.post(request, url);
+            return TypeUtils.getRpcResponse(method, rpcResponse);
         }catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.MultiValueMap;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
@@ -30,6 +31,7 @@ public class ProviderInvoker {
 
     public RpcResponse<Object> invoke(RpcRequest request) {
         RpcResponse<Object> response = new RpcResponse<>();
+        response.setStatus(false);
         try {
             ProviderMeta providerMeta = findProviderMeta(request);
             log.debug(Strings.lenientFormat("开始执行：%s", providerMeta));
@@ -40,12 +42,13 @@ public class ProviderInvoker {
             response.setStatus(true);
             response.setData(data);
             return response;
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.setStatus(false);
-            response.setData(null);
-            return response;
+        } catch (InvocationTargetException e) {
+            // 被调用方法本身发生异常
+            response.setEx(new RuntimeException(e.getTargetException().getMessage()));
+        } catch (IllegalAccessException e) {
+            response.setEx(new RuntimeException(e.getMessage()));
         }
+        return response;
     }
 
     private ProviderMeta findProviderMeta(RpcRequest request) {
