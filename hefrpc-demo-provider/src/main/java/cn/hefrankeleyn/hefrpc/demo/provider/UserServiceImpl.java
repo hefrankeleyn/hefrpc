@@ -53,4 +53,26 @@ public class UserServiceImpl implements UserService {
         }
         return "unknown";
     }
+
+    @Override
+    public User ex(boolean flag) {
+        if (flag) {
+            throw new RuntimeException("just throw an exception");
+        }
+        String port = environment.getProperty("server.port");
+        return new User(100, "hefrpc-" + port + "-" + System.currentTimeMillis());
+    }
+
+    @Override
+    public User findTimeOut(int timeout) {
+        String port = environment.getProperty("server.port");
+        if ("8081".equals(port)) {
+            try {
+                Thread.sleep(timeout);
+            }catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return new User(121, "timeout-"+port);
+    }
 }

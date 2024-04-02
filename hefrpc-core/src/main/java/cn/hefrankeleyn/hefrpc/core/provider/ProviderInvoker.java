@@ -1,5 +1,6 @@
 package cn.hefrankeleyn.hefrpc.core.provider;
 
+import cn.hefrankeleyn.hefrpc.core.api.HefRpcException;
 import cn.hefrankeleyn.hefrpc.core.api.RpcRequest;
 import cn.hefrankeleyn.hefrpc.core.api.RpcResponse;
 import cn.hefrankeleyn.hefrpc.core.meta.ProviderMeta;
@@ -44,9 +45,9 @@ public class ProviderInvoker {
             return response;
         } catch (InvocationTargetException e) {
             // 被调用方法本身发生异常
-            response.setEx(new RuntimeException(e.getTargetException().getMessage()));
+            response.setEx(new HefRpcException(e.getTargetException()));
         } catch (IllegalAccessException e) {
-            response.setEx(new RuntimeException(e.getMessage()));
+            response.setEx(new HefRpcException(e));
         }
         return response;
     }

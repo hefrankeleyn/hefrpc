@@ -1,11 +1,9 @@
 package com.hhrpc.hefrpc.demo.consumer;
 
-import cn.hefrankeleyn.hefrpc.core.api.Filter;
-import cn.hefrankeleyn.hefrpc.core.filter.MockFilter;
 import cn.hefrankeleyn.hefrpc.core.utils.MockUtils;
 import cn.hefrankeleyn.hefrpc.demo.api.User;
+import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
@@ -42,5 +40,15 @@ public class BeanTest {
 
     public int[] getIntArray() {
         return null;
+    }
+
+    @Test
+    public void exTest() {
+        HefrpcException oneError = new HefrpcException("one error");
+        String oneSTr = JSONObject.toJSONString(oneError);
+        System.out.println(oneSTr);
+        Object result = JSONObject.parseObject(oneSTr);
+        System.out.println(result);
+        System.out.println(result instanceof HefrpcException);
     }
 }

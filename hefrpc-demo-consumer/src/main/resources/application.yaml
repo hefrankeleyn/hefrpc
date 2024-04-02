@@ -6,10 +6,14 @@ hefrpc:
   zkservers: localhost:2181
   zkroot: hefrpc
 
+
+
 app:
   id: app1
   namespace: public
   env: dev
+  retries: 2
+  timeout: 1
 
 logging:
   level:

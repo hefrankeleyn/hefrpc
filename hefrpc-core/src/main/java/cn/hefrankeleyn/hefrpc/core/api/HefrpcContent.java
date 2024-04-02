@@ -2,8 +2,10 @@ package cn.hefrankeleyn.hefrpc.core.api;
 
 import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Date 2024/3/20
@@ -14,6 +16,8 @@ public class HefrpcContent {
     private List<Filter> filterList = Lists.newArrayList();
     private LoadBalance<InstanceMeta> loadBalance;
     private Router<InstanceMeta> router;
+
+    private Map<String, String> parameters = Maps.newHashMap();
 
     public HefrpcContent(){}
 
@@ -46,12 +50,21 @@ public class HefrpcContent {
         this.router = router;
     }
 
+    public Map<String, String> getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(Map<String, String> parameters) {
+        this.parameters = parameters;
+    }
+
     @Override
     public String toString() {
         return "HefrpcContent{" +
                 "filterList=" + filterList +
                 ", loadBalance=" + loadBalance +
                 ", router=" + router +
+                ", parameters=" + parameters +
                 '}';
     }
 }

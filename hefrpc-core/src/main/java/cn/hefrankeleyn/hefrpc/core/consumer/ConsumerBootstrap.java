@@ -35,6 +35,8 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
     private String app;
     private String namespace;
     private String env;
+    private int retries;
+    private long timeout;
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
@@ -53,6 +55,10 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
         app = environment.getProperty("app.id");
         namespace = environment.getProperty("app.namespace");
         env = environment.getProperty("app.env");
+        retries = Integer.parseInt(environment.getProperty("app.retries"));
+        timeout = Long.parseLong(environment.getProperty("app.timeout"));
+        hefrpcContent.getParameters().put("app.retries", String.valueOf(retries));
+        hefrpcContent.getParameters().put("app.timeout", String.valueOf(timeout));
         String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
         for (String beanDefinitionName : beanDefinitionNames) {
             Object bean = applicationContext.getBean(beanDefinitionName);

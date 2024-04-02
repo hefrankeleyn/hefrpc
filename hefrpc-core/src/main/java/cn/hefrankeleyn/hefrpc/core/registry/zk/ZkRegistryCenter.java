@@ -1,5 +1,6 @@
 package cn.hefrankeleyn.hefrpc.core.registry.zk;
 
+import cn.hefrankeleyn.hefrpc.core.api.HefRpcException;
 import cn.hefrankeleyn.hefrpc.core.api.RegistryCenter;
 import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
 import cn.hefrankeleyn.hefrpc.core.meta.ServiceMeta;
@@ -73,7 +74,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             }
             log.info("====>> register to zk : " + instancePath);
         }catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new HefRpcException(e);
         }
     }
 
@@ -90,7 +91,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             client.delete().quietly().forPath(instancePath);
             log.info("====>> unregister from zk : " + instancePath);
         }catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new HefRpcException(e);
         }
     }
 
@@ -109,7 +110,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             instanceList.forEach(System.out::println);
             return instanceList;
         }catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new HefRpcException(e);
         }
     }
 
@@ -129,7 +130,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             });
             treeCache.start();
         }catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new HefRpcException(e);
         }
     }
 }

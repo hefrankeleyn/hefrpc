@@ -12,7 +12,7 @@ public class RpcResponse<T> {
     /** 结果 */
     private T data;
 
-    private Exception ex;
+    private HefRpcException ex;
 
     public boolean isStatus() {
         return status;
@@ -30,11 +30,11 @@ public class RpcResponse<T> {
         this.data = data;
     }
 
-    public Exception getEx() {
+    public HefRpcException getEx() {
         return ex;
     }
 
-    public void setEx(Exception ex) {
+    public void setEx(HefRpcException ex) {
         this.ex = ex;
     }
 

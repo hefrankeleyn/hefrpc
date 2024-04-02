@@ -1,9 +1,6 @@
 package cn.hefrankeleyn.hefrpc.core.handler;
 
-import cn.hefrankeleyn.hefrpc.core.api.Filter;
-import cn.hefrankeleyn.hefrpc.core.api.HefrpcContent;
-import cn.hefrankeleyn.hefrpc.core.api.RpcRequest;
-import cn.hefrankeleyn.hefrpc.core.api.RpcResponse;
+import cn.hefrankeleyn.hefrpc.core.api.*;
 import cn.hefrankeleyn.hefrpc.core.consumer.HttpInvoker;
 import cn.hefrankeleyn.hefrpc.core.consumer.http.OkHttpInvoker;
 import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
@@ -14,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,12 +26,16 @@ public class HefConsumerHandler implements InvocationHandler {
     private List<InstanceMeta> instanceMetaList;
     private HefrpcContent hefrpcContent;
 
-    private HttpInvoker httpInvoker = new OkHttpInvoker();
+    private Long timeout;
+
+    private HttpInvoker httpInvoker;
 
     public HefConsumerHandler(String service, List<InstanceMeta> instanceMetaList, HefrpcContent hefrpcContent) {
         this.service = service;
         this.instanceMetaList = instanceMetaList;
         this.hefrpcContent = hefrpcContent;
+        timeout = Long.parseLong(hefrpcContent.getParameters().getOrDefault("app.retries", "1000"));
+        httpInvoker = new OkHttpInvoker(timeout);
     }
 
     @Override
@@ -45,26 +47,43 @@ public class HefConsumerHandler implements InvocationHandler {
         request.setArgs(args);
         request.setMethodSign(HefRpcMethodUtils.createMethodSign(method));
         request.setService(this.service);
-        List<Filter> filterList = hefrpcContent.getFilterList();
-        for (Filter filter : filterList) {
-            Object o = filter.preFilter(request);
-            if (Objects.nonNull(o)) {
-                log.info(filter.getClass().getName() + " ===> preFilter: " + o);
-                return o;
+        int retries = Integer.parseInt(hefrpcContent.getParameters().get("app.retries"));
+        while (retries-- > 0) {
+            try {
+                log.info("===> reties: " + retries);
+                List<Filter> filterList = hefrpcContent.getFilterList();
+                for (Filter filter : filterList) {
+                    Object o = filter.preFilter(request);
+                    if (Objects.nonNull(o)) {
+                        log.info(filter.getClass().getName() + " ===> preFilter: " + o);
+                        return o;
+                    }
+                }
+                InstanceMeta instanceMeta = hefrpcContent.getLoadBalance().choose(hefrpcContent.getRouter().route(instanceMetaList));
+                RpcResponse<?> rpcResponse = httpInvoker.post(request, instanceMeta.toUrl());
+                Object result = castReturnResult(rpcResponse, method);
+                for (Filter filter : filterList) {
+                    Object o = filter.postFilter(request, rpcResponse, result);
+                    if (Objects.nonNull(o)) {
+                        return o;
+                    }
+                }
+                return result;
+            } catch (RuntimeException e) {
+                if (!(e.getCause() instanceof SocketTimeoutException)) {
+                    throw e;
+                }
             }
         }
-        RpcResponse<?> response = fetchHttpRpcResponse(request, method);
-        if (!response.isStatus()) {
-            throw new RuntimeException(response.getEx());
+        return null;
+    }
+
+    private static Object castReturnResult(RpcResponse<?> rpcResponse, Method method) {
+        if (!rpcResponse.isStatus()) {
+            throw rpcResponse.getEx();
+        } else {
+            return TypeUtils.castFastJsonReturnObject(method, rpcResponse.getData());
         }
-        Object result = response.getData();
-        for (Filter filter : filterList) {
-            Object o = filter.postFilter(request, response, result);
-            if (Objects.nonNull(o)) {
-                return o;
-            }
-        }
-        return result;
     }
 
     private RpcResponse<?> fetchHttpRpcResponse(RpcRequest request, Method method) {
@@ -74,7 +93,7 @@ public class HefConsumerHandler implements InvocationHandler {
             log.debug("loadBalance.choose(urls) => " + url);
             RpcResponse<?> rpcResponse = httpInvoker.post(request, url);
             return TypeUtils.getRpcResponse(method, rpcResponse);
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

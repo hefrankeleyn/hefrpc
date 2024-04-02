@@ -1,16 +1,17 @@
 package cn.hefrankeleyn.hefrpc.core.utils;
 
 import cn.hefrankeleyn.hefrpc.core.api.RpcResponse;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @Date 2024/3/18
@@ -133,6 +134,87 @@ public class TypeUtils {
             result[i] = cast(args[i], parameterTypes[i], genericParameterTypes[i]);
         }
         return result;
+    }
+
+    public static Object castFastJsonReturnObject(Method method, Object object) {
+        if (Objects.isNull(object)) {
+            return null;
+        }
+        Class<?> returnType = method.getReturnType();
+        Type genericReturnType = method.getGenericReturnType();
+        return castFastJsonObj(object, returnType, genericReturnType);
+    }
+
+    private static Object castFastJsonObj(Object origin, Class<?> valType, Type genericType) {
+        if (Objects.isNull(origin)) {
+            return null;
+        }
+        if (Integer.class.equals(valType) || Integer.TYPE.equals(valType)) {
+            return Integer.valueOf(origin.toString());
+        } else if (Short.class.equals(valType) || Short.TYPE.equals(valType)) {
+            return Short.valueOf(origin.toString());
+        } else if (Character.class.equals(valType) || Character.TYPE.equals(valType)) {
+            return Character.valueOf(origin.toString().charAt(0));
+        } else if (Long.class.equals(valType) || Long.TYPE.equals(valType)) {
+            return Long.valueOf(origin.toString());
+        } else if (Float.class.equals(valType) || Float.TYPE.equals(valType)) {
+            return Float.valueOf(origin.toString());
+        } else if (Double.class.equals(valType) || Double.TYPE.equals(valType)) {
+            return Double.valueOf(origin.toString());
+        } else if (Boolean.class.equals(valType) || Boolean.TYPE.equals(valType)) {
+            return Boolean.valueOf(origin.toString());
+        }
+
+        if (origin instanceof JSONObject jsonObject) {
+            if (Map.class.isAssignableFrom(valType)) {
+                Map resMap = new HashMap();
+                if (genericType instanceof ParameterizedType parameterizedType) {
+                    Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                    Class<?> keyClass = (Class<?>) actualTypeArguments[0];
+                    Class<?> valueClass = (Class<?>) actualTypeArguments[1];
+                    for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
+                        Object mapKey = castFastJsonObj(entry.getKey(), keyClass, keyClass.getGenericSuperclass());
+                        Object mapValue = castFastJsonObj(entry.getValue(), valueClass, valueClass.getGenericSuperclass());
+                        resMap.put(mapKey, mapValue);
+                    }
+                } else {
+                    resMap = jsonObject.toJavaObject(Map.class);
+                }
+                return resMap;
+            } else {
+                return jsonObject.toJavaObject(valType);
+            }
+        } else if (origin instanceof JSONArray jsonArray) {
+            Object[] array = jsonArray.toArray();
+            if (valType.isArray()) {
+                Class<?> componentType = valType.getComponentType();
+                Object arrRes = Array.newInstance(componentType, array.length);
+                for (int i = 0; i < array.length; i++) {
+                    Array.set(arrRes, i, castFastJsonObj(array[i], componentType, componentType.getGenericSuperclass()));
+                }
+                return arrRes;
+            } else if (List.class.isAssignableFrom(valType)) {
+                List listRes = new ArrayList(array.length);
+                if (genericType instanceof ParameterizedType parameterizedType) {
+                    Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+                    Class<?> itemType = (Class<?>)actualTypeArguments[0];
+                    for (Object oneVal : array) {
+                        listRes.add(castFastJsonObj(oneVal, itemType, itemType.getGenericSuperclass()));
+                    }
+                } else {
+                    for (Object oneVal : array) {
+                        listRes.add(oneVal);
+                    }
+                }
+                return listRes;
+            } else {
+                return null;
+            }
+        }
+        if (valType.isAssignableFrom(origin.getClass())) {
+            return origin;
+        }
+        return JSONObject.parseObject(origin.toString(), valType);
     }
 
     public static RpcResponse<?> getRpcResponse(Method method, RpcResponse<?> rpcResponse) throws IOException {
