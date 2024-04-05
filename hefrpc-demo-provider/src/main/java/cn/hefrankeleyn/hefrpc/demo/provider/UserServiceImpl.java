@@ -3,11 +3,16 @@ package cn.hefrankeleyn.hefrpc.demo.provider;
 import cn.hefrankeleyn.hefrpc.core.annotation.HefProvider;
 import cn.hefrankeleyn.hefrpc.demo.api.User;
 import cn.hefrankeleyn.hefrpc.demo.api.UserService;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import jakarta.annotation.Resource;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @Date 2024/3/7
@@ -63,10 +68,18 @@ public class UserServiceImpl implements UserService {
         return new User(100, "hefrpc-" + port + "-" + System.currentTimeMillis());
     }
 
+    private String timoutPortList = "8081";
+
+    @Override
+    public void updateTimeoutPorts(String timeoutPorts) {
+        this.timoutPortList = timeoutPorts;
+    }
+
     @Override
     public User findTimeOut(int timeout) {
         String port = environment.getProperty("server.port");
-        if ("8081".equals(port)) {
+        Set<String> timeoutPortSet = Sets.newHashSet(Splitter.on(",").split(timoutPortList));
+        if (timeoutPortSet.contains(port)) {
             try {
                 Thread.sleep(timeout);
             }catch (Exception e) {

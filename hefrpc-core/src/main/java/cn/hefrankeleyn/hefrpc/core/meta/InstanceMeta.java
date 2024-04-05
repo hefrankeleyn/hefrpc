@@ -3,6 +3,7 @@ package cn.hefrankeleyn.hefrpc.core.meta;
 import com.google.common.base.Strings;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @Date 2024/3/24
@@ -83,6 +84,18 @@ public class InstanceMeta {
 
     public String toUrl() {
         return Strings.lenientFormat("%s://%s:%s/", schema, host, port);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof InstanceMeta that)) return false;
+        return Objects.equals(getSchema(), that.getSchema()) && Objects.equals(getHost(), that.getHost()) && Objects.equals(getPort(), that.getPort()) && Objects.equals(getStatus(), that.getStatus()) && Objects.equals(getContext(), that.getContext()) && Objects.equals(getParameters(), that.getParameters());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getSchema(), getHost(), getPort(), getStatus(), getContext(), getParameters());
     }
 
     @Override

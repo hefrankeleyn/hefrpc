@@ -3,17 +3,26 @@ package cn.hefrankeleyn.hefrpc.core.handler;
 import cn.hefrankeleyn.hefrpc.core.api.*;
 import cn.hefrankeleyn.hefrpc.core.consumer.HttpInvoker;
 import cn.hefrankeleyn.hefrpc.core.consumer.http.OkHttpInvoker;
+import cn.hefrankeleyn.hefrpc.core.governance.SlidingTimeWindow;
 import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
 import cn.hefrankeleyn.hefrpc.core.utils.HefRpcMethodUtils;
 import cn.hefrankeleyn.hefrpc.core.utils.TypeUtils;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.SocketTimeoutException;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Date 2024/3/11
@@ -22,21 +31,37 @@ import java.util.Objects;
 public class HefConsumerHandler implements InvocationHandler {
     private static final Logger log = LoggerFactory.getLogger(HefConsumerHandler.class);
 
-    private String service;
-    private List<InstanceMeta> instanceMetaList;
-    private HefrpcContent hefrpcContent;
+    private final String service;
+    private List<InstanceMeta> providers = Lists.newArrayList();
+    private final HefrpcContent hefrpcContent;
+    private final Map<String, SlidingTimeWindow> slidingTimeWindowMap = Maps.newHashMap();
 
-    private Long timeout;
+    private final List<InstanceMeta> isolatedProviders = Lists.newArrayList();
+    private final List<InstanceMeta> halfOpenProviders = Lists.newArrayList();
 
-    private HttpInvoker httpInvoker;
+    private final Long timeout;
 
-    public HefConsumerHandler(String service, List<InstanceMeta> instanceMetaList, HefrpcContent hefrpcContent) {
+    private final HttpInvoker httpInvoker;
+    private final ScheduledExecutorService executorService;
+
+    public HefConsumerHandler(String service, List<InstanceMeta> providers, HefrpcContent hefrpcContent) {
         this.service = service;
-        this.instanceMetaList = instanceMetaList;
+        this.providers = providers;
         this.hefrpcContent = hefrpcContent;
-        timeout = Long.parseLong(hefrpcContent.getParameters().getOrDefault("app.retries", "1000"));
+        timeout = Long.parseLong(hefrpcContent.getParameters().getOrDefault("app.timeout", "1000"));
         httpInvoker = new OkHttpInvoker(timeout);
+        this.executorService = Executors.newScheduledThreadPool(1);
+        this.executorService.scheduleWithFixedDelay(this::halfOpen, 10, 30, TimeUnit.SECONDS);
     }
+
+    public void halfOpen() {
+        log.debug("===> halfOpenProviders: {}， isolatedProviders: {}, providers: {}", halfOpenProviders, isolatedProviders, providers);
+        this.halfOpenProviders.clear();
+        this.halfOpenProviders.addAll(isolatedProviders);
+        log.debug("===> halfOpenProviders: {}， isolatedProviders: {}, providers: {}", halfOpenProviders, isolatedProviders, providers);
+    }
+
+
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) {
@@ -59,9 +84,45 @@ public class HefConsumerHandler implements InvocationHandler {
                         return o;
                     }
                 }
-                InstanceMeta instanceMeta = hefrpcContent.getLoadBalance().choose(hefrpcContent.getRouter().route(instanceMetaList));
-                RpcResponse<?> rpcResponse = httpInvoker.post(request, instanceMeta.toUrl());
-                Object result = castReturnResult(rpcResponse, method);
+                RpcResponse<?> rpcResponse = null;
+                Object result = null;
+                InstanceMeta instanceMeta= null;
+                synchronized (halfOpenProviders) {
+                    if (halfOpenProviders.isEmpty()) {
+                        instanceMeta = hefrpcContent.getLoadBalance().choose(hefrpcContent.getRouter().route(providers));
+                        log.debug("===> loadBalance.choose: {}", instanceMeta);
+                    } else {
+                        instanceMeta = halfOpenProviders.remove(0);
+                        log.debug("===> check alive instance : {}", instanceMeta);
+                    }
+                }
+                String url = instanceMeta.toUrl();
+                try {
+                    log.debug("==> current url: {}", url);
+                    rpcResponse = httpInvoker.post(request, url);
+                    result = castReturnResult(rpcResponse, method);
+                }catch (Exception e) {
+                    // 故障的规则判断和隔离
+                    // 创建一个环，记录 多长时间间隔内发生异常的次数
+                    // 每次异常记录异常，记录30m的异常次数
+                    SlidingTimeWindow slidingTimeWindow = slidingTimeWindowMap.putIfAbsent(url, new SlidingTimeWindow());
+                    slidingTimeWindow.record(System.currentTimeMillis());
+                    log.info("instance {} in window with {}", url, slidingTimeWindow.getSum());
+                    // 30秒内发生10次，就进行故障隔离
+                    if (slidingTimeWindow.getSum() >= 10) {
+                        isolate(instanceMeta);
+                    }
+                    throw e;
+                }
+
+                synchronized (providers) {
+                    if (!providers.contains(instanceMeta)) {
+                        halfOpenProviders.remove(instanceMeta);
+                        providers.add(instanceMeta);
+                        log.debug("===> instance: {}, providers: {}, halfOpenProviders : {}", instanceMeta, providers, halfOpenProviders);
+                    }
+                }
+
                 for (Filter filter : filterList) {
                     Object o = filter.postFilter(request, rpcResponse, result);
                     if (Objects.nonNull(o)) {
@@ -78,6 +139,14 @@ public class HefConsumerHandler implements InvocationHandler {
         return null;
     }
 
+    private void isolate(InstanceMeta instanceMeta) {
+        log.debug("===> isolate instance : " + instanceMeta);
+        providers.remove(instanceMeta);
+        log.debug("===> providers: {}", providers);
+        isolatedProviders.add(instanceMeta);
+        log.debug("===> isolatedProviders: {}", isolatedProviders);
+    }
+
     private static Object castReturnResult(RpcResponse<?> rpcResponse, Method method) {
         if (!rpcResponse.isStatus()) {
             throw rpcResponse.getEx();
@@ -88,7 +157,7 @@ public class HefConsumerHandler implements InvocationHandler {
 
     private RpcResponse<?> fetchHttpRpcResponse(RpcRequest request, Method method) {
         try {
-            InstanceMeta instanceMeta = hefrpcContent.getLoadBalance().choose(hefrpcContent.getRouter().route(instanceMetaList));
+            InstanceMeta instanceMeta = hefrpcContent.getLoadBalance().choose(hefrpcContent.getRouter().route(providers));
             String url = instanceMeta.toUrl();
             log.debug("loadBalance.choose(urls) => " + url);
             RpcResponse<?> rpcResponse = httpInvoker.post(request, url);
