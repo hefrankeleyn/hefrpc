@@ -14,7 +14,7 @@ class HefrpcDemoProviderApplicationTests {
 	@BeforeAll
 	public static void init() {
 		try {
-			testingServer = new TestingServer(2181);
+			testingServer = new TestingServer(2182);
 		}catch (Exception e) {
 			throw new RuntimeException(e);
 		}

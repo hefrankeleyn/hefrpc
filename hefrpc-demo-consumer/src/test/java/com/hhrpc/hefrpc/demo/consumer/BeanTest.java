@@ -1,5 +1,6 @@
 package com.hhrpc.hefrpc.demo.consumer;
 
+import cn.hefrankeleyn.hefrpc.core.api.HefRpcException;
 import cn.hefrankeleyn.hefrpc.core.utils.MockUtils;
 import cn.hefrankeleyn.hefrpc.demo.api.User;
 import com.alibaba.fastjson.JSONObject;
@@ -44,11 +45,11 @@ public class BeanTest {
 
     @Test
     public void exTest() {
-        HefrpcException oneError = new HefrpcException("one error");
+        HefRpcException oneError = new HefRpcException("one error");
         String oneSTr = JSONObject.toJSONString(oneError);
         System.out.println(oneSTr);
         Object result = JSONObject.parseObject(oneSTr);
         System.out.println(result);
-        System.out.println(result instanceof HefrpcException);
+        System.out.println(result instanceof HefRpcException);
     }
 }

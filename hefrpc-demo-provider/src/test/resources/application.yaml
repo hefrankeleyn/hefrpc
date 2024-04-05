@@ -1,0 +1,15 @@
+server:
+  port: 8081
+app:
+  id: app1
+  namespace: public
+  env: dev
+hefrpc:
+  zkservers: localhost:2182
+  zkroot: hefrpc
+
+logging:
+  level:
+    root: error
+    cn.hefrankeleyn.hefrpc: info
+    com.hhrpc.hefrpc.demo: info
