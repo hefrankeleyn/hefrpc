@@ -117,7 +117,7 @@ public class HefConsumerHandler implements InvocationHandler {
 
                 synchronized (providers) {
                     if (!providers.contains(instanceMeta)) {
-                        halfOpenProviders.remove(instanceMeta);
+                        isolatedProviders.remove(instanceMeta);
                         providers.add(instanceMeta);
                         log.debug("===> instance: {}, providers: {}, halfOpenProviders : {}", instanceMeta, providers, halfOpenProviders);
                     }
