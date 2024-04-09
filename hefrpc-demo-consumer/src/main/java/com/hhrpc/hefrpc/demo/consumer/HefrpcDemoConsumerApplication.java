@@ -33,7 +33,7 @@ public class HefrpcDemoConsumerApplication {
     private OrderService orderService;
 
     @RequestMapping(value = "/")
-    public User findById(int id) {
+    public User findById(@RequestParam("id") int id) {
         return this.userService.findById(id);
     }
 
