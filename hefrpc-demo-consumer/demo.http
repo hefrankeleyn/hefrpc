@@ -8,3 +8,8 @@ Accept: application/json
 ### 超时时间
 GET http://localhost:8088/findTimeOut?timeout=2000
 Accept: application/json
+
+
+### 修改grayRatio的值大小
+GET http://localhost:8088/updateGrayRatio?grayRatio=100
+Accept: application/json

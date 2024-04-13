@@ -2,11 +2,16 @@ package com.hhrpc.hefrpc.demo.consumer;
 
 import cn.hefrankeleyn.hefrpc.core.annotation.HefConsumer;
 import cn.hefrankeleyn.hefrpc.core.api.HefRpcException;
+import cn.hefrankeleyn.hefrpc.core.api.Router;
+import cn.hefrankeleyn.hefrpc.core.cluster.GrayRouter;
 import cn.hefrankeleyn.hefrpc.core.conf.ConsumerConf;
+import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
 import cn.hefrankeleyn.hefrpc.demo.api.Order;
 import cn.hefrankeleyn.hefrpc.demo.api.OrderService;
 import cn.hefrankeleyn.hefrpc.demo.api.User;
 import cn.hefrankeleyn.hefrpc.demo.api.UserService;
+import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -45,6 +50,15 @@ public class HefrpcDemoConsumerApplication {
     @RequestMapping(value = "/findTimeOut")
     public User findTimeOut(@RequestParam("timeout") int timeout) {
         return userService.findTimeOut(timeout);
+    }
+
+    @Resource
+    private Router<InstanceMeta> router;
+
+    @RequestMapping(value = "/updateGrayRatio")
+    public Integer updateGrayRatio(@RequestParam("grayRatio") Integer grayRatio) {
+        ((GrayRouter)router).setGrayRatio(grayRatio);
+        return grayRatio;
     }
 
     public static void main(String[] args) {

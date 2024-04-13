@@ -14,6 +14,8 @@ app:
   env: dev
   retries: 2
   timeout: 1
+  # 灰度流量百分比（0-100）
+  grayRatio: 10
 
 logging:
   level:

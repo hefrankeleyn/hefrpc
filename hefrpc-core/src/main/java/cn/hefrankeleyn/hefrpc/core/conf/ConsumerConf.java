@@ -4,6 +4,7 @@ import cn.hefrankeleyn.hefrpc.core.api.Filter;
 import cn.hefrankeleyn.hefrpc.core.api.LoadBalance;
 import cn.hefrankeleyn.hefrpc.core.api.RegistryCenter;
 import cn.hefrankeleyn.hefrpc.core.api.Router;
+import cn.hefrankeleyn.hefrpc.core.cluster.GrayRouter;
 import cn.hefrankeleyn.hefrpc.core.cluster.RoundRibonLoadBalance;
 import cn.hefrankeleyn.hefrpc.core.consumer.ConsumerBootstrap;
 import cn.hefrankeleyn.hefrpc.core.consumer.HttpInvoker;
@@ -28,6 +29,9 @@ public class ConsumerConf {
     @Value("${hefrpc.provicer}")
     private String servers;
 
+    @Value("${app.grayRatio}")
+    private Integer grayRatio;
+
     @Bean
     public ConsumerBootstrap consumerBootstrap() {
         return new ConsumerBootstrap();
@@ -46,7 +50,7 @@ public class ConsumerConf {
 
     @Bean
     public Router<InstanceMeta> router() {
-        return Router.DEFAULT;
+        return new GrayRouter(grayRatio);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
