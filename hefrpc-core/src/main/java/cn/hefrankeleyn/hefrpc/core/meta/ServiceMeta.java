@@ -1,6 +1,10 @@
 package cn.hefrankeleyn.hefrpc.core.meta;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
+import com.google.gson.Gson;
+
+import java.util.Map;
 
 /**
  * 描述服务元数据
@@ -13,6 +17,8 @@ public class ServiceMeta {
     private String namespace;
     private String env;
     private String name;
+
+    private Map<String, String> parameters = Maps.newHashMap();
 
     public ServiceMeta(){}
     private ServiceMeta(Builder builder){
@@ -76,6 +82,18 @@ public class ServiceMeta {
 
     public String toPath() {
         return Strings.lenientFormat("%s_%s_%s_%s", app, namespace, env, name);
+    }
+
+    public Map<String, String> getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(Map<String, String> parameters) {
+        this.parameters = parameters;
+    }
+
+    public String toMetas() {
+        return new Gson().toJson(parameters);
     }
 
     @Override

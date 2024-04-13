@@ -68,7 +68,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             String servicePath = Strings.lenientFormat("/%s", serviceMeta.toPath());
             // 创建服务的持久化节点
             if (Objects.isNull(client.checkExists().forPath(servicePath))) {
-                client.create().withMode(CreateMode.PERSISTENT).forPath(servicePath, "service".getBytes());
+                client.create().withMode(CreateMode.PERSISTENT).forPath(servicePath, serviceMeta.toMetas().getBytes());
             }
             // 创建实例的临时节点
             String instancePath = createInstancePath(servicePath, instance);
