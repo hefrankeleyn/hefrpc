@@ -105,7 +105,8 @@ public class HefConsumerHandler implements InvocationHandler {
                     // 故障的规则判断和隔离
                     // 创建一个环，记录 多长时间间隔内发生异常的次数
                     // 每次异常记录异常，记录30m的异常次数
-                    SlidingTimeWindow slidingTimeWindow = slidingTimeWindowMap.putIfAbsent(url, new SlidingTimeWindow());
+                    slidingTimeWindowMap.putIfAbsent(url, new SlidingTimeWindow());
+                    SlidingTimeWindow slidingTimeWindow = slidingTimeWindowMap.get(url);
                     slidingTimeWindow.record(System.currentTimeMillis());
                     log.info("instance {} in window with {}", url, slidingTimeWindow.getSum());
                     // 30秒内发生10次，就进行故障隔离

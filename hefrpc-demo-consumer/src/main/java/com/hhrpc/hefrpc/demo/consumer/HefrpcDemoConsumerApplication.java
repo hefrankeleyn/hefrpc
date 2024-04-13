@@ -96,7 +96,7 @@ public class HefrpcDemoConsumerApplication {
         System.out.println(listIds);
         System.out.println("===> 用例14: 返回值为List类型： ");
         List<Integer> listOids = this.orderService.findListIds(Arrays.asList(new Order(1, 1.1d), new Order(2, 2.2d)));
-//        System.out.println(listOids);
+        System.out.println(listOids);
         System.out.println("===> 用例15: 返回值是Map： ");
         Map<String, Order> map = new HashMap<>();
         map.put("aaa", new Order(111, 11.1d));
@@ -111,9 +111,10 @@ public class HefrpcDemoConsumerApplication {
             System.out.println(exUser);
         }catch (Exception e) {
             if (e instanceof HefRpcException rpcex) {
-                System.out.println("=====> This is a rpc exception: " + rpcex);
+                System.out.println("=====> This is a rpc exception: " + rpcex.getMessage());
+            } else {
+                System.out.println("====> This is other exception...");
             }
-            System.out.println("====> This is other exception...");
         }
     }
 

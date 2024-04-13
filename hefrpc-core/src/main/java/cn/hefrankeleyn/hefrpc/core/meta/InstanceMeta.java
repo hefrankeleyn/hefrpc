@@ -1,6 +1,8 @@
 package cn.hefrankeleyn.hefrpc.core.meta;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
+import com.google.gson.Gson;
 
 import java.util.Map;
 import java.util.Objects;
@@ -20,7 +22,7 @@ public class InstanceMeta {
 
     private String context;
 
-    private Map<String, String> parameters;
+    private Map<String, String> parameters = Maps.newHashMap();
 
     public InstanceMeta(){}
 
@@ -96,6 +98,10 @@ public class InstanceMeta {
     @Override
     public int hashCode() {
         return Objects.hash(getSchema(), getHost(), getPort(), getStatus(), getContext(), getParameters());
+    }
+
+    public String toMetas() {
+        return new Gson().toJson(parameters);
     }
 
     @Override

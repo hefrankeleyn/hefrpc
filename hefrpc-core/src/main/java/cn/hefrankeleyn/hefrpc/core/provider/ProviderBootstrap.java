@@ -2,6 +2,7 @@ package cn.hefrankeleyn.hefrpc.core.provider;
 
 import cn.hefrankeleyn.hefrpc.core.annotation.HefProvider;
 import cn.hefrankeleyn.hefrpc.core.api.RegistryCenter;
+import cn.hefrankeleyn.hefrpc.core.conf.ProviderGrayConf;
 import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
 import cn.hefrankeleyn.hefrpc.core.meta.ProviderMeta;
 import cn.hefrankeleyn.hefrpc.core.meta.ServiceMeta;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
@@ -47,6 +49,9 @@ public class ProviderBootstrap implements ApplicationContextAware, EnvironmentAw
     // 1. 缓存，加快访问速度； 2.
     private MultiValueMap<String, ProviderMeta> skeletion = new LinkedMultiValueMap<>();
 
+    @Autowired
+    private ProviderGrayConf providerGrayConf;
+
 
     /**
      * POSTConstruct 相当于 init-method
@@ -68,6 +73,7 @@ public class ProviderBootstrap implements ApplicationContextAware, EnvironmentAw
             env = environment.getProperty("app.env");
             String hostAddress = InetAddress.getLocalHost().getHostAddress();
             instance = new InstanceMeta("http", hostAddress, port);
+            instance.getParameters().putAll(providerGrayConf.getMetas());
             registryCenter.start();
             skeletion.keySet().forEach(this::registerService);
         } catch (Exception e) {

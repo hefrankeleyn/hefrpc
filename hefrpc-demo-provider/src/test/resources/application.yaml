@@ -4,6 +4,11 @@ app:
   id: app1
   namespace: public
   env: dev
+  metas:
+    gray: false
+    dc: bj
+    union: B001
+
 hefrpc:
   zkservers: localhost:2182
   zkroot: hefrpc

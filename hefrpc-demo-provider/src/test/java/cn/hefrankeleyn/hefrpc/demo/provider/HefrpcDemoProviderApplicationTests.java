@@ -32,6 +32,7 @@ class HefrpcDemoProviderApplicationTests {
 
 	@Test
 	void contextLoads() {
+		System.out.println("aaa");
 	}
 
 }
