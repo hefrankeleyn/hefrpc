@@ -21,6 +21,7 @@
         <curator.version>5.1.0</curator.version>
         <zookeeper.version>3.9.2</zookeeper.version>
         <fastjson.version>1.2.83</fastjson.version>
+        <spring-boot-configuration-processor.version>3.2.0</spring-boot-configuration-processor.version>
     </properties>
     <dependencies>
         <dependency>
@@ -86,6 +87,13 @@
             <groupId>org.apache.zookeeper</groupId>
             <artifactId>zookeeper</artifactId>
             <version>${zookeeper.version}</version>
+        </dependency>
+<!--        智能提示-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <version>${spring-boot-configuration-processor.version}</version>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
