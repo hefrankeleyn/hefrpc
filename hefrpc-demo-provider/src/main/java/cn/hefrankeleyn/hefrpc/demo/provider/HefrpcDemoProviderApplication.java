@@ -3,7 +3,6 @@ package cn.hefrankeleyn.hefrpc.demo.provider;
 import cn.hefrankeleyn.hefrpc.core.api.RpcRequest;
 import cn.hefrankeleyn.hefrpc.core.api.RpcResponse;
 import cn.hefrankeleyn.hefrpc.core.conf.ProviderConf;
-import cn.hefrankeleyn.hefrpc.core.provider.ProviderBootstrap;
 import cn.hefrankeleyn.hefrpc.core.provider.ProviderInvoker;
 import cn.hefrankeleyn.hefrpc.demo.api.UserService;
 import jakarta.annotation.Resource;
@@ -30,11 +29,7 @@ public class HefrpcDemoProviderApplication {
 		SpringApplication.run(HefrpcDemoProviderApplication.class, args);
 	}
 
-	// 使用HTTP + JSON实现序列化
-	@RequestMapping(value = "/")
-	public RpcResponse<Object> invoke(@RequestBody RpcRequest request) {
-		return providerInvoker.invoke(request);
-	}
+
 
 	@RequestMapping(value = "/updateTimeoutPorts", method = RequestMethod.GET)
 	public RpcResponse<String> updateTimeoutPorts(@RequestParam("timeoutPorts") String timeoutPorts) {

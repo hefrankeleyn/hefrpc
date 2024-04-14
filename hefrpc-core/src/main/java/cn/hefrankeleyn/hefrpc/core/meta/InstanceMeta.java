@@ -26,10 +26,11 @@ public class InstanceMeta {
 
     public InstanceMeta(){}
 
-    public InstanceMeta(String schema, String host, Integer port) {
+    public InstanceMeta(String schema, String host, Integer port, String context) {
         this.schema = schema;
         this.host = host;
         this.port = port;
+        this.context = context;
     }
 
     public String getSchema() {
@@ -81,11 +82,11 @@ public class InstanceMeta {
     }
 
     public String toPath() {
-        return Strings.lenientFormat("%s_%s", host, port);
+        return Strings.lenientFormat("%s_%s_%s", host, port, context);
     }
 
     public String toUrl() {
-        return Strings.lenientFormat("%s://%s:%s/", schema, host, port);
+        return Strings.lenientFormat("%s://%s:%s/%s", schema, host, port, context);
     }
 
     @Override

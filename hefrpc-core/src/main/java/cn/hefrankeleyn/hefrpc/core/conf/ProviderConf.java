@@ -4,6 +4,7 @@ import cn.hefrankeleyn.hefrpc.core.api.RegistryCenter;
 import cn.hefrankeleyn.hefrpc.core.provider.ProviderBootstrap;
 import cn.hefrankeleyn.hefrpc.core.provider.ProviderInvoker;
 import cn.hefrankeleyn.hefrpc.core.registry.zk.ZkRegistryCenter;
+import cn.hefrankeleyn.hefrpc.core.transport.SpringBootTransport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationRunner;
@@ -18,7 +19,7 @@ import org.springframework.core.annotation.Order;
  * @Author lifei
  */
 @Configuration
-@Import(ProviderGrayConf.class)
+@Import({ProviderGrayConf.class, SpringBootTransport.class})
 public class ProviderConf {
 
     private static final Logger log = LoggerFactory.getLogger(ProviderConf.class);

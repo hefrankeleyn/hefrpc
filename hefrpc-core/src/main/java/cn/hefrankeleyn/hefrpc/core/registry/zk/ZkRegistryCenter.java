@@ -118,7 +118,10 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     private List<InstanceMeta> mapToInstanceMeta(List<String> nodes, String servicePath) {
         return nodes.stream().map(node -> {
-            InstanceMeta instance = new InstanceMeta("http", node.split("_")[0], Integer.parseInt(node.split("_")[1]));
+            String host = node.split("_")[0];
+            int port = Integer.parseInt(node.split("_")[1]);
+            String context = node.split("_")[2];
+            InstanceMeta instance = new InstanceMeta("http", host, port, context);
             String path  = Strings.lenientFormat("%s/%s", servicePath, node);
             byte[] bytes;
             try {

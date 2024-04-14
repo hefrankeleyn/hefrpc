@@ -72,7 +72,7 @@ public class ProviderBootstrap implements ApplicationContextAware, EnvironmentAw
             namespace = environment.getProperty("app.namespace");
             env = environment.getProperty("app.env");
             String hostAddress = InetAddress.getLocalHost().getHostAddress();
-            instance = new InstanceMeta("http", hostAddress, port);
+            instance = new InstanceMeta("http", hostAddress, port, "hefrpc");
             instance.getParameters().putAll(providerGrayConf.getMetas());
             registryCenter.start();
             skeletion.keySet().forEach(this::registerService);
