@@ -1,6 +1,7 @@
 package cn.hefrankeleyn.hefrpc.core.provider;
 
 import cn.hefrankeleyn.hefrpc.core.api.HefRpcException;
+import cn.hefrankeleyn.hefrpc.core.api.HefrpcContent;
 import cn.hefrankeleyn.hefrpc.core.api.RpcRequest;
 import cn.hefrankeleyn.hefrpc.core.api.RpcResponse;
 import cn.hefrankeleyn.hefrpc.core.meta.ProviderMeta;
@@ -34,6 +35,9 @@ public class ProviderInvoker {
         RpcResponse<Object> response = new RpcResponse<>();
         response.setStatus(false);
         try {
+            if (Objects.nonNull(request.getParams()) && !request.getParams().isEmpty()) {
+                HefrpcContent.contextParameters.get().putAll(request.getParams());
+            }
             ProviderMeta providerMeta = findProviderMeta(request);
             log.debug(Strings.lenientFormat("开始执行：%s", providerMeta));
             checkState(Objects.nonNull(providerMeta), "没有查到对方的方法：%s", request);

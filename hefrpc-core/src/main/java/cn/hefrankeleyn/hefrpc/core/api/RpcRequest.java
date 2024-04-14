@@ -1,6 +1,10 @@
 package cn.hefrankeleyn.hefrpc.core.api;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.collect.Maps;
+
 import java.util.Arrays;
+import java.util.Map;
 
 /**
  * 模拟请求的描述
@@ -17,6 +21,8 @@ public class RpcRequest {
 
     /** 参数： 例如： 100 */
     private Object[] args;
+
+    private Map<String, String> params = Maps.newHashMap();
 
     public String getService() {
         return service;
@@ -42,12 +48,21 @@ public class RpcRequest {
         this.args = args;
     }
 
+    public Map<String, String> getParams() {
+        return params;
+    }
+
+    public void setParams(Map<String, String> params) {
+        this.params = params;
+    }
+
     @Override
     public String toString() {
-        return "RpcRequest{" +
-                "service='" + service + '\'' +
-                ", method='" + methodSign + '\'' +
-                ", args=" + Arrays.toString(args) +
-                '}';
+        return MoreObjects.toStringHelper(RpcRequest.class)
+                .add("service", service)
+                .add("methodSign", methodSign)
+                .add("args", Arrays.toString(args))
+                .add("params", params)
+                .toString();
     }
 }

@@ -20,5 +20,5 @@ app:
 logging:
   level:
     root: error
-    cn.hefrankeleyn.hefrpc: debug
-    com.hhrpc.hefrpc.demo: debug
+    cn.hefrankeleyn.hefrpc: info
+    com.hhrpc.hefrpc.demo: info

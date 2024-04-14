@@ -19,6 +19,21 @@ public class HefrpcContent {
 
     private Map<String, String> parameters = Maps.newHashMap();
 
+    public static ThreadLocal<Map<String, String>> contextParameters = new ThreadLocal<>() {
+        @Override
+        public Map<String, String> initialValue() {
+            return Maps.newHashMap();
+        }
+    };
+
+    public static void setContextParameter(String key, String value) {
+        contextParameters.get().put(key, value);
+    }
+
+    public static String getContextParameter(String key) {
+        return contextParameters.get().get(key);
+    }
+
     public HefrpcContent(){}
 
     public HefrpcContent(LoadBalance<InstanceMeta> loadBalance, Router<InstanceMeta> router) {

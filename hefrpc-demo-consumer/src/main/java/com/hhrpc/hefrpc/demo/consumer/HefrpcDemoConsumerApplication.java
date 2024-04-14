@@ -2,6 +2,7 @@ package com.hhrpc.hefrpc.demo.consumer;
 
 import cn.hefrankeleyn.hefrpc.core.annotation.HefConsumer;
 import cn.hefrankeleyn.hefrpc.core.api.HefRpcException;
+import cn.hefrankeleyn.hefrpc.core.api.HefrpcContent;
 import cn.hefrankeleyn.hefrpc.core.api.Router;
 import cn.hefrankeleyn.hefrpc.core.cluster.GrayRouter;
 import cn.hefrankeleyn.hefrpc.core.conf.ConsumerConf;
@@ -130,6 +131,14 @@ public class HefrpcDemoConsumerApplication {
                 System.out.println("====> This is other exception...");
             }
         }
+
+        System.out.println("===> 用例16: 测试通过RpcContext 跨越consumer和provider传递参数：");
+        Map<String, String> contextParameters01 = HefrpcContent.contextParameters.get();
+        contextParameters01.put("tokenId", "001");
+        contextParameters01.put("username", "aaa");
+        String tokenId = userService.cacheParameter("tokenId");
+        System.out.println(tokenId);
+        HefrpcContent.contextParameters.get().clear();
     }
 
 }

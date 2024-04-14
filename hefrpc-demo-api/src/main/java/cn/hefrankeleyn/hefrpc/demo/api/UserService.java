@@ -15,6 +15,7 @@ public interface UserService {
 
     void updateTimeoutPorts(String timeoutPorts);
 
+    String cacheParameter(String key);
 
 
 }

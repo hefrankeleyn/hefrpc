@@ -1,6 +1,7 @@
 package cn.hefrankeleyn.hefrpc.demo.provider;
 
 import cn.hefrankeleyn.hefrpc.core.annotation.HefProvider;
+import cn.hefrankeleyn.hefrpc.core.api.HefrpcContent;
 import cn.hefrankeleyn.hefrpc.demo.api.User;
 import cn.hefrankeleyn.hefrpc.demo.api.UserService;
 import com.google.common.base.Splitter;
@@ -87,5 +88,12 @@ public class UserServiceImpl implements UserService {
             }
         }
         return new User(121, "timeout-"+port);
+    }
+
+    @Override
+    public String cacheParameter(String key) {
+        System.out.println("===> RpcContext parameters: ");
+        HefrpcContent.contextParameters.get().forEach((k, v) -> System.out.println(k + "=" + v));
+        return HefrpcContent.getContextParameter(key);
     }
 }
