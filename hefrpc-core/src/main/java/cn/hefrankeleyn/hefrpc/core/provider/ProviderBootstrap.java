@@ -2,6 +2,7 @@ package cn.hefrankeleyn.hefrpc.core.provider;
 
 import cn.hefrankeleyn.hefrpc.core.annotation.HefProvider;
 import cn.hefrankeleyn.hefrpc.core.api.RegistryCenter;
+import cn.hefrankeleyn.hefrpc.core.conf.AppConfigProperties;
 import cn.hefrankeleyn.hefrpc.core.conf.ProviderGrayConf;
 import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
 import cn.hefrankeleyn.hefrpc.core.meta.ProviderMeta;
@@ -31,27 +32,28 @@ import java.util.*;
  * @Date 2024/3/7
  * @Author lifei
  */
-public class ProviderBootstrap implements ApplicationContextAware, EnvironmentAware {
+public class ProviderBootstrap implements ApplicationContextAware {
 
     private static final Logger log = LoggerFactory.getLogger(ProviderBootstrap.class);
 
     private ApplicationContext applicationContext;
-    private Environment environment;
 
     private InstanceMeta instance;
-
-    private String app;
-    private String namespace;
-    private String env;
 
     private RegistryCenter registryCenter;
 
     // 1. 缓存，加快访问速度； 2.
     private MultiValueMap<String, ProviderMeta> skeletion = new LinkedMultiValueMap<>();
 
-    @Autowired
-    private ProviderGrayConf providerGrayConf;
+    private final Integer port;
+    private final AppConfigProperties appConfigProperties;
+    private final ProviderGrayConf providerGrayConf;
 
+    public ProviderBootstrap(Integer port, AppConfigProperties appConfigProperties, ProviderGrayConf providerGrayConf) {
+        this.port = port;
+        this.appConfigProperties = appConfigProperties;
+        this.providerGrayConf = providerGrayConf;
+    }
 
     /**
      * POSTConstruct 相当于 init-method
@@ -67,13 +69,8 @@ public class ProviderBootstrap implements ApplicationContextAware, EnvironmentAw
 
     public void start() {
         try {
-            Integer port = Integer.parseInt(environment.getProperty("server.port"));
-            app = environment.getProperty("app.id");
-            namespace = environment.getProperty("app.namespace");
-            env = environment.getProperty("app.env");
             String hostAddress = InetAddress.getLocalHost().getHostAddress();
-            instance = new InstanceMeta("http", hostAddress, port, "hefrpc");
-            instance.getParameters().putAll(providerGrayConf.getMetas());
+            instance = InstanceMeta.http("http", hostAddress, port, "hefrpc").addParams(providerGrayConf.getMetas());
             registryCenter.start();
             skeletion.keySet().forEach(this::registerService);
         } catch (Exception e) {
@@ -89,23 +86,20 @@ public class ProviderBootstrap implements ApplicationContextAware, EnvironmentAw
 
 
     private void registerService(String serviceName) {
-        ServiceMeta serviceMeta = ServiceMeta.builder()
-                .name(serviceName)
-                .app(app)
-                .env(env)
-                .namespace(namespace)
-                .build();
-        registryCenter.register(serviceMeta, instance);
+        registryCenter.register(createServiceMeta(serviceName), instance);
     }
 
     private void unregisterService(String serviceName) {
-        ServiceMeta serviceMeta = ServiceMeta.builder()
+        registryCenter.unregister(createServiceMeta(serviceName), instance);
+    }
+
+    private ServiceMeta createServiceMeta(String serviceName) {
+        return ServiceMeta.builder()
                 .name(serviceName)
-                .app(app)
-                .env(env)
-                .namespace(namespace)
+                .app(appConfigProperties.getId())
+                .env(appConfigProperties.getEnv())
+                .namespace(appConfigProperties.getNamespace())
                 .build();
-        registryCenter.unregister(serviceMeta, instance);
     }
 
     /**
@@ -135,11 +129,6 @@ public class ProviderBootstrap implements ApplicationContextAware, EnvironmentAw
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
-    }
-
-    @Override
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
     }
 
     public MultiValueMap<String, ProviderMeta> getSkeletion() {

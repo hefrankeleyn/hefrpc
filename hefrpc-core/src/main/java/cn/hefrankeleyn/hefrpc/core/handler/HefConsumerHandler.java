@@ -11,7 +11,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -19,7 +18,6 @@ import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -39,8 +37,6 @@ public class HefConsumerHandler implements InvocationHandler {
     private final List<InstanceMeta> isolatedProviders = Lists.newArrayList();
     private final List<InstanceMeta> halfOpenProviders = Lists.newArrayList();
 
-    private final Long timeout;
-
     private final HttpInvoker httpInvoker;
     private final ScheduledExecutorService executorService;
 
@@ -48,10 +44,12 @@ public class HefConsumerHandler implements InvocationHandler {
         this.service = service;
         this.providers = providers;
         this.hefrpcContent = hefrpcContent;
-        timeout = Long.parseLong(hefrpcContent.getParameters().getOrDefault("app.timeout", "1000"));
+        long timeout = Long.parseLong(hefrpcContent.param("consumer.timeout"));
         httpInvoker = new OkHttpInvoker(timeout);
         this.executorService = Executors.newScheduledThreadPool(1);
-        this.executorService.scheduleWithFixedDelay(this::halfOpen, 10, 30, TimeUnit.SECONDS);
+        long initDelay = Long.parseLong(hefrpcContent.param("consumer.halfOpenInitDelay"));
+        long delay = Long.parseLong(hefrpcContent.param("consumer.halfOpenDelay"));
+        this.executorService.scheduleWithFixedDelay(this::halfOpen, initDelay ,delay, TimeUnit.MILLISECONDS);
     }
 
     public void halfOpen() {
@@ -72,7 +70,8 @@ public class HefConsumerHandler implements InvocationHandler {
         request.setArgs(args);
         request.setMethodSign(HefRpcMethodUtils.createMethodSign(method));
         request.setService(this.service);
-        int retries = Integer.parseInt(hefrpcContent.getParameters().get("app.retries"));
+        int retries = Integer.parseInt(hefrpcContent.param("consumer.retries"));
+        int faultLimit = Integer.parseInt(hefrpcContent.param("consumer.faultLimit"));
         while (retries-- > 0) {
             try {
                 log.info("===> reties: " + retries);
@@ -110,7 +109,7 @@ public class HefConsumerHandler implements InvocationHandler {
                     slidingTimeWindow.record(System.currentTimeMillis());
                     log.info("instance {} in window with {}", url, slidingTimeWindow.getSum());
                     // 30秒内发生10次，就进行故障隔离
-                    if (slidingTimeWindow.getSum() >= 10) {
+                    if (slidingTimeWindow.getSum() >= faultLimit) {
                         isolate(instanceMeta);
                     }
                     throw e;

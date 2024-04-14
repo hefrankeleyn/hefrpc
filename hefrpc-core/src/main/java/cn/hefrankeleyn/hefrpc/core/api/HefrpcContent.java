@@ -1,6 +1,7 @@
 package cn.hefrankeleyn.hefrpc.core.api;
 
 import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -18,6 +19,10 @@ public class HefrpcContent {
     private Router<InstanceMeta> router;
 
     private Map<String, String> parameters = Maps.newHashMap();
+
+    public String param(String key) {
+        return parameters.get(key);
+    }
 
     public static ThreadLocal<Map<String, String>> contextParameters = new ThreadLocal<>() {
         @Override
@@ -75,11 +80,11 @@ public class HefrpcContent {
 
     @Override
     public String toString() {
-        return "HefrpcContent{" +
-                "filterList=" + filterList +
-                ", loadBalance=" + loadBalance +
-                ", router=" + router +
-                ", parameters=" + parameters +
-                '}';
+        return MoreObjects.toStringHelper(HefrpcContent.class)
+                .add("filterList", filterList)
+                .add("loadBalance", loadBalance)
+                .add("router", router)
+                .add("parameters", parameters)
+                .toString();
     }
 }

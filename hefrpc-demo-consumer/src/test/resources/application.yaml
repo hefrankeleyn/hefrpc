@@ -2,14 +2,24 @@ server:
   port: 8088
 
 hefrpc:
+  zk:
+    servers: localhost:2182
+    root: hefrpc
+  consumer:
+    retries: 2
+    timeout: 1000
+    # 灰度流量百分比（0-100）
+    grayRatio: 10
+    halfOpenInitDely: 10_000
+    halfOpenDely: 60_000
+    faultLimit: 10
+  app:
+    id: app1
+    namespace: public
+    env: dev
   provicer: http://localhost:8081,http://localhost:8082
-  zkservers: localhost:2182
-  zkroot: hefrpc
 
-app:
-  id: app1
-  namespace: public
-  env: dev
+
 
 logging:
   level:

@@ -1,18 +1,19 @@
 server:
   port: 8081
-app:
-  id: app1
-  namespace: public
-  env: dev
-  metas:
-    gray: false
-    dc: bj
-    union: B001
-
 
 hefrpc:
-  zkservers: localhost:2181
-  zkroot: hefrpc
+  app:
+    id: app1
+    namespace: public
+    env: dev
+  provider:
+    metas:
+      gray: false
+      dc: bj
+      union: B001
+  zk:
+    servers: localhost:2181
+    root: hefrpc
 
 logging:
   level:

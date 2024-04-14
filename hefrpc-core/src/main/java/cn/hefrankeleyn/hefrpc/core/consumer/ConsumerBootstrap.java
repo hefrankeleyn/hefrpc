@@ -2,6 +2,7 @@ package cn.hefrankeleyn.hefrpc.core.consumer;
 
 import cn.hefrankeleyn.hefrpc.core.annotation.HefConsumer;
 import cn.hefrankeleyn.hefrpc.core.api.*;
+import cn.hefrankeleyn.hefrpc.core.conf.ConsumerBusConf;
 import cn.hefrankeleyn.hefrpc.core.handler.HefConsumerHandler;
 import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
 import cn.hefrankeleyn.hefrpc.core.meta.ServiceMeta;
@@ -25,40 +26,21 @@ import java.util.stream.Collectors;
  * @Date 2024/3/11
  * @Author lifei
  */
-public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAware {
+public class ConsumerBootstrap implements ApplicationContextAware {
     private static final Logger log = LoggerFactory.getLogger(ConsumerBootstrap.class);
 
     private ApplicationContext applicationContext;
-    private Environment environment;
     private Map<String, Object> stub = new HashMap<>();
 
-    private String app;
-    private String namespace;
-    private String env;
-    private int retries;
-    private long timeout;
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
 
-
-
     public void scanningFields() {
         RegistryCenter registryCenter = applicationContext.getBean(RegistryCenter.class);
-        Router<InstanceMeta> router = applicationContext.getBean(Router.class);
-        LoadBalance<InstanceMeta> loadBalance = applicationContext.getBean(LoadBalance.class);
-        List<Filter> filters = Lists.newArrayList(applicationContext.getBeansOfType(Filter.class).values());
-        HefrpcContent hefrpcContent = new HefrpcContent(loadBalance, router);
-        hefrpcContent.setFilterList(filters);
-        app = environment.getProperty("app.id");
-        namespace = environment.getProperty("app.namespace");
-        env = environment.getProperty("app.env");
-        retries = Integer.parseInt(environment.getProperty("app.retries", "2"));
-        timeout = Long.parseLong(environment.getProperty("app.timeout", "1"));
-        hefrpcContent.getParameters().put("app.retries", String.valueOf(retries));
-        hefrpcContent.getParameters().put("app.timeout", String.valueOf(timeout));
+        HefrpcContent hefrpcContent = applicationContext.getBean(HefrpcContent.class);
         String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
         for (String beanDefinitionName : beanDefinitionNames) {
             Object bean = applicationContext.getBean(beanDefinitionName);
@@ -94,9 +76,9 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
         String serviceName = type.getCanonicalName();
         ServiceMeta serviceMeta = ServiceMeta.builder()
                 .name(serviceName)
-                .app(app)
-                .env(env)
-                .namespace(namespace)
+                .app(hefrpcContent.param("app.id"))
+                .env(hefrpcContent.param("app.env"))
+                .namespace(hefrpcContent.param("app.namespace"))
                 .build();
         List<InstanceMeta> instanceMetaList = registryCenter.findAll(serviceMeta);
         log.info("====> nodes map to providers");
@@ -124,9 +106,5 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                 new HefConsumerHandler(service.getCanonicalName(), instanceMetaList, hefrpcContent));
     }
 
-    @Override
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
-    }
 
 }

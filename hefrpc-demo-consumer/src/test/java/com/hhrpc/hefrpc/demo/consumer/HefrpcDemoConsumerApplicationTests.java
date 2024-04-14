@@ -25,7 +25,7 @@ class HefrpcDemoConsumerApplicationTests {
         try {
             testingServer = new TestingServer(2182);
             providerContext = SpringApplication.run(HefrpcDemoProviderApplication.class, new String[]{
-                    "--server.port=8084", "--hefrpc.zkservers=localhost:2182"
+                    "--server.port=8084", "--hefrpc.zk.servers=localhost:2182"
             });
         }catch (Exception e) {
             throw new RuntimeException(e);

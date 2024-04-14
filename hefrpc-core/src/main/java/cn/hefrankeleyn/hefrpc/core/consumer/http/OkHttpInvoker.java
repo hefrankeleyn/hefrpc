@@ -23,15 +23,15 @@ public class OkHttpInvoker implements HttpInvoker {
     private final OkHttpClient client;
 
     public OkHttpInvoker(){
-        this(1);
+        this(1000);
     }
 
     public OkHttpInvoker(long timeout){
         client = new OkHttpClient.Builder()
                 .connectionPool(new ConnectionPool(16, 60, TimeUnit.SECONDS))
-                .connectTimeout(timeout, TimeUnit.SECONDS) // 建立HTTP连接的超时时间
-                .readTimeout(timeout, TimeUnit.SECONDS)  //
-                .writeTimeout(timeout, TimeUnit.SECONDS)
+                .connectTimeout(timeout, TimeUnit.MILLISECONDS) // 建立HTTP连接的超时时间
+                .readTimeout(timeout, TimeUnit.MILLISECONDS)  //
+                .writeTimeout(timeout, TimeUnit.MILLISECONDS)
                 .build();
     }
 

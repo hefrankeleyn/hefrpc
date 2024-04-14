@@ -33,6 +33,15 @@ public class InstanceMeta {
         this.context = context;
     }
 
+    public static InstanceMeta http(String schema, String host, Integer port, String context) {
+        return new InstanceMeta(schema, host, port, context);
+    }
+
+    public InstanceMeta addParams(Map<String, String> params) {
+        this.getParameters().putAll(params);
+        return this;
+    }
+
     public String getSchema() {
         return schema;
     }
