@@ -5,12 +5,12 @@
     <parent>
         <groupId>cn.hefrankeleyn</groupId>
         <artifactId>hefrpc</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>${hefrpc.version}</version>
 <!--        <relativePath/> &lt;!&ndash; lookup parent from repository &ndash;&gt;-->
     </parent>
     <groupId>cn.hefrankeleyn</groupId>
     <artifactId>hefrpc-core</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>${hefrpc.version}</version>
     <name>hefrpc-core</name>
     <description>hefrpc-core</description>
     <properties>

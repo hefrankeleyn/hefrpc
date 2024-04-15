@@ -5,12 +5,12 @@
     <parent>
         <groupId>cn.hefrankeleyn</groupId>
         <artifactId>hefrpc</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>${hefrpc.version}</version>
 <!--        <relativePath/> &lt;!&ndash; lookup parent from repository &ndash;&gt;-->
     </parent>
     <groupId>com.hhrpc</groupId>
     <artifactId>hefrpc-demo-consumer</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>${hefrpc.version}</version>
     <name>hefrpc-demo-consumer</name>
     <description>hefrpc-demo-consumer</description>
     <dependencyManagement>
@@ -28,12 +28,12 @@
         <dependency>
             <groupId>cn.hefrankeleyn</groupId>
             <artifactId>hefrpc-core</artifactId>
-            <version>${project.version}</version>
+            <version>${hefrpc.version}</version>
         </dependency>
         <dependency>
             <groupId>cn.hefrankeleyn</groupId>
             <artifactId>hefrpc-demo-api</artifactId>
-            <version>${project.version}</version>
+            <version>${hefrpc.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
