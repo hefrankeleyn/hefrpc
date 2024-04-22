@@ -2,12 +2,41 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>cn.hefrankeleyn</groupId>
+    <groupId>io.github.hefrankeleyn</groupId>
     <artifactId>hefrpc</artifactId>
     <version>${hefrpc.version}</version>
     <name>hefrpc</name>
     <description>hefrpc</description>
     <packaging>pom</packaging>
+    <url>https://github.com/hefrankeleyn/hefrpc</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <issueManagement>
+        <system>github</system>
+        <url>https://github.com/hefrankeleyn/hefrpc/issues</url>
+    </issueManagement>
+
+    <scm>
+        <connection>scm:git:https://github.com/hefrankeleyn/hefrpc.git</connection>
+        <developerConnection>scm:git:https://github.com/hefrankeleyn/hefrpc.git</developerConnection>
+        <url>https://github.com/hefrankeleyn/hefrpc</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <name>hefrankeleyn</name>
+            <email>hefrankeleyn@gmail.com</email>
+            <url>https://github.com/hefrankeleyn/hefrankeleyn</url>
+        </developer>
+    </developers>
+
     <properties>
         <spring.boot.version>3.2.3</spring.boot.version>
         <java.version>17</java.version>
@@ -15,7 +44,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <junit.version>4.13.2</junit.version>
         <maven-surefire-plugin.version>3.2.3</maven-surefire-plugin.version>
-        <hefrpc.version>0.0.1-SNAPSHOT</hefrpc.version>
+        <hefrpc.version>0.0.1</hefrpc.version>
     </properties>
 
     <modules>
@@ -52,7 +81,98 @@
                     </execution>
                 </executions>
             </plugin>
+
+<!--            打包源码-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.1.0</version>
+                <inherited>true</inherited>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <excludeResources>true</excludeResources>
+                    <useDefaultExcludes>true</useDefaultExcludes>
+                </configuration>
+            </plugin>
+<!--            打包javadoc-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.1.0</version>
+                <inherited>true</inherited>
+                <executions>
+                    <execution>
+                        <id>bundle-sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <maxmemory>1024</maxmemory>
+                    <encoding>UTF-8</encoding>
+                    <show>protected</show>
+                    <notree>true</notree>
+                    <!-- Avoid running into Java 8's very restrictive doclint issues -->
+                    <failOnError>false</failOnError>
+                    <doclint>none</doclint>
+                </configuration>
+            </plugin>
+
+
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!--            配置方式： https://central.sonatype.org/publish/publish-portal-maven/ -->
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.4.0</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <tokenAuth>true</tokenAuth>
+<!--                            如果 autoPublish 是false，则需要手动点击 -->
+                            <autoPublish>true</autoPublish>
+                            <excludeArtifacts>
+                                <!--                        <excludeArtifact>hefrpc-core</excludeArtifact>-->
+                                <excludeArtifact>hefrpc-demo-api</excludeArtifact>
+                                <excludeArtifact>hefrpc-demo-provider</excludeArtifact>
+                                <excludeArtifact>hefrpc-demo-consumer</excludeArtifact>
+                            </excludeArtifacts>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

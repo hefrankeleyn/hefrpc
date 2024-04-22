@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>cn.hefrankeleyn</groupId>
+        <groupId>io.github.hefrankeleyn</groupId>
         <artifactId>hefrpc</artifactId>
         <version>${hefrpc.version}</version>
 <!--        <relativePath/> &lt;!&ndash; lookup parent from repository &ndash;&gt;-->
@@ -26,12 +26,12 @@
     </dependencyManagement>
     <dependencies>
         <dependency>
-            <groupId>cn.hefrankeleyn</groupId>
+            <groupId>io.github.hefrankeleyn</groupId>
             <artifactId>hefrpc-core</artifactId>
             <version>${hefrpc.version}</version>
         </dependency>
         <dependency>
-            <groupId>cn.hefrankeleyn</groupId>
+            <groupId>io.github.hefrankeleyn</groupId>
             <artifactId>hefrpc-demo-api</artifactId>
             <version>${hefrpc.version}</version>
         </dependency>
@@ -52,7 +52,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>cn.hefrankeleyn</groupId>
+            <groupId>io.github.hefrankeleyn</groupId>
             <artifactId>hefrpc-demo-provider</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
