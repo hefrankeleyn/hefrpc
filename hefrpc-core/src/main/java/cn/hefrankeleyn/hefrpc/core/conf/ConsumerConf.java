@@ -14,6 +14,7 @@ import cn.hefrankeleyn.hefrpc.core.registry.zk.ZkRegistryCenter;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -29,7 +30,7 @@ import java.util.List;
 @Import({ConsumerBusConf.class, AppConfigProperties.class})
 public class ConsumerConf {
 
-    @Value("${hefrpc.provicer}")
+    @Value("${hefrpc.provicer:http://localhost:8081,http://localhost:8082}")
     private String servers;
 
     @Value("${hefrpc.zk.servers:localhost:2181}")
@@ -66,6 +67,7 @@ public class ConsumerConf {
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
+    @ConditionalOnMissingBean
     public RegistryCenter registryCenter() {
 //        List<String> providers = Arrays.asList(servers.split(","));
 //        return new RegistryCenter.StaticRegistryCenter(providers);
