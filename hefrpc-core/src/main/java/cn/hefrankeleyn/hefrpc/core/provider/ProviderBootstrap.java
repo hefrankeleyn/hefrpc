@@ -71,7 +71,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
         try {
             String hostAddress = InetAddress.getLocalHost().getHostAddress();
             instance = InstanceMeta.http("http", hostAddress, port, "hefrpc").addParams(providerGrayConf.getMetas());
-            registryCenter.start();
+//            registryCenter.start();
             skeletion.keySet().forEach(this::registerService);
         } catch (Exception e) {
             throw new RuntimeException(e);

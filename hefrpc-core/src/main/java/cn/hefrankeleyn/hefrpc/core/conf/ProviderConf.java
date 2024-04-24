@@ -55,7 +55,7 @@ public class ProviderConf {
 
 
     // 这里start和stop是有bug的
-    @Bean//(initMethod = "start", destroyMethod = "stop")
+    @Bean(initMethod = "start")
     @ConditionalOnMissingBean
     public RegistryCenter registryCenter() {
         return new ZkRegistryCenter(zkServers, zkRoot);

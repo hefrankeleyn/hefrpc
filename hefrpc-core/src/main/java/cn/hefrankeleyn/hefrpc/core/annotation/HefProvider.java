@@ -1,6 +1,5 @@
 package cn.hefrankeleyn.hefrpc.core.annotation;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 
 import java.lang.annotation.*;
 
