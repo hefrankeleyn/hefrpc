@@ -11,6 +11,7 @@ hefrpc:
       gray: false
       dc: bj
       union: B001
+      tc: 25
   zk:
     servers: localhost:2181
     root: hefrpc

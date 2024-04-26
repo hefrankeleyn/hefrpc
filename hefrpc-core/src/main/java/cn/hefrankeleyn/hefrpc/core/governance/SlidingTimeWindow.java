@@ -56,7 +56,22 @@ public class SlidingTimeWindow {
             initRing(ts);
         }
         this.sum = this.ringBuffer.sum();
-        log.info("===> window after: " + this);
+        log.debug("===> window after: " + this);
+    }
+
+    public int calcSum() {
+        long ts = System.currentTimeMillis()/1000;
+        if (ts > current_ts && ts < current_ts + size) {
+            int offset = (int)(ts - current_ts);
+            this.ringBuffer.reset(current_mark + 1, offset);
+            this.current_ts = ts;
+            this.current_mark = (current_mark + offset)%size;
+        } else if (ts >= current_ts + size) {
+            this.ringBuffer.reset();
+            initRing(ts);
+        }
+        log.debug("calc sum for window ts: {}", this);
+        return this.ringBuffer.sum();
     }
 
     private void initRing(long ts) {

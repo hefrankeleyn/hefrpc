@@ -3,24 +3,20 @@ package cn.hefrankeleyn.hefrpc.core.provider;
 import cn.hefrankeleyn.hefrpc.core.annotation.HefProvider;
 import cn.hefrankeleyn.hefrpc.core.api.RegistryCenter;
 import cn.hefrankeleyn.hefrpc.core.conf.AppConfigProperties;
-import cn.hefrankeleyn.hefrpc.core.conf.ProviderGrayConf;
+import cn.hefrankeleyn.hefrpc.core.conf.ProviderBusConf;
 import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
 import cn.hefrankeleyn.hefrpc.core.meta.ProviderMeta;
 import cn.hefrankeleyn.hefrpc.core.meta.ServiceMeta;
 import cn.hefrankeleyn.hefrpc.core.utils.HefRpcMethodUtils;
 
-import com.google.common.base.Strings;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.EnvironmentAware;
-import org.springframework.core.env.Environment;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -47,12 +43,12 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     private final Integer port;
     private final AppConfigProperties appConfigProperties;
-    private final ProviderGrayConf providerGrayConf;
+    private final ProviderBusConf providerBusConf;
 
-    public ProviderBootstrap(Integer port, AppConfigProperties appConfigProperties, ProviderGrayConf providerGrayConf) {
+    public ProviderBootstrap(Integer port, AppConfigProperties appConfigProperties, ProviderBusConf providerBusConf) {
         this.port = port;
         this.appConfigProperties = appConfigProperties;
-        this.providerGrayConf = providerGrayConf;
+        this.providerBusConf = providerBusConf;
     }
 
     /**
@@ -70,7 +66,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
     public void start() {
         try {
             String hostAddress = InetAddress.getLocalHost().getHostAddress();
-            instance = InstanceMeta.http("http", hostAddress, port, "hefrpc").addParams(providerGrayConf.getMetas());
+            instance = InstanceMeta.http("http", hostAddress, port, "hefrpc").addParams(providerBusConf.getMetas());
 //            registryCenter.start();
             skeletion.keySet().forEach(this::registerService);
         } catch (Exception e) {
@@ -133,5 +129,9 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     public MultiValueMap<String, ProviderMeta> getSkeletion() {
         return skeletion;
+    }
+
+    public ProviderBusConf getProviderBusConf() {
+        return providerBusConf;
     }
 }

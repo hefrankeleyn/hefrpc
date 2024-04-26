@@ -1,6 +1,6 @@
 package cn.hefrankeleyn.hefrpc.demo.provider;
 
-import cn.hefrankeleyn.hefrpc.core.conf.ProviderGrayConf;
+import cn.hefrankeleyn.hefrpc.core.conf.ProviderBusConf;
 import org.apache.curator.test.TestingServer;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -19,7 +19,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class ProviderConfTest {
 
     @Autowired
-    private ProviderGrayConf providerGrayConf;
+    private ProviderBusConf providerBusConf;
 
 
     private static TestingServer testingServer;
@@ -36,7 +36,7 @@ public class ProviderConfTest {
 
     @Test
     public void test01() {
-        System.out.println(providerGrayConf.getMetas());
+        System.out.println(providerBusConf.getMetas());
     }
 
     @AfterClass
