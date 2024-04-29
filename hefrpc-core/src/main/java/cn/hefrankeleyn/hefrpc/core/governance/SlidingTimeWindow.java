@@ -34,10 +34,10 @@ public class SlidingTimeWindow {
     }
 
     public void record(long tms) {
-        log.info("===> window before: " + this);
+        log.debug("===> window before: " + this);
         // 毫秒转秒
         long ts = tms/1000;
-        log.info("===> record(s): " + ts);
+        log.debug("===> record(s): " + ts);
         if (start_ts==-1) {
             initRing(ts);
         } else if (ts == current_ts) {
