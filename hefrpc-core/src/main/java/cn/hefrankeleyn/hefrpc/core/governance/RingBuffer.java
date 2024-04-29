@@ -30,16 +30,10 @@ public class RingBuffer {
         int fromIndex  = index%size;
         int toIndex  = (index+step)%size;
         if (fromIndex<toIndex) {
-            resetByIndex(fromIndex, toIndex, 0);
-        } else {
-            resetByIndex(fromIndex, size, 0);
-            resetByIndex(0, toIndex, 0);
-        }
-    }
-
-    private void resetByIndex(int fromIndex, int toIndex, int val) {
-        if (fromIndex < toIndex) {
-            Arrays.fill(ring, fromIndex, toIndex, val);
+            Arrays.fill(ring, fromIndex, toIndex, 0);
+        } else if (fromIndex > toIndex){
+            Arrays.fill(ring, fromIndex, size, 0);
+            Arrays.fill(ring, 0, toIndex, 0);
         }
     }
 
