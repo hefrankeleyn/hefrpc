@@ -21,3 +21,19 @@ logging:
     root: error
     cn.hefrankeleyn.hefrpc: info
     com.hhrpc.hefrpc.demo: info
+
+app:
+  id: app01
+apollo:
+  cluster: default
+  cache-dir: /Users/lifei/Documents/opt/data/apollo
+  meta: http://localhost:8080
+  autoUpdateInjectedSpringProperties: true
+  bootstrap:
+    enabled: true
+    namespaces: rpcprovider,application
+    eagerLoad:
+      enabled: true
+
+
+

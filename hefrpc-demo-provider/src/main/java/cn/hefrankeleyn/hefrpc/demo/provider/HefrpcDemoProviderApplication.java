@@ -2,10 +2,12 @@ package cn.hefrankeleyn.hefrpc.demo.provider;
 
 import cn.hefrankeleyn.hefrpc.core.api.RpcRequest;
 import cn.hefrankeleyn.hefrpc.core.api.RpcResponse;
+import cn.hefrankeleyn.hefrpc.core.conf.ProviderBusConf;
 import cn.hefrankeleyn.hefrpc.core.conf.ProviderConf;
 import cn.hefrankeleyn.hefrpc.core.provider.ProviderInvoker;
 import cn.hefrankeleyn.hefrpc.demo.api.UserService;
 import com.google.common.base.Strings;
+import com.google.gson.Gson;
 import jakarta.annotation.Resource;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -41,6 +43,14 @@ public class HefrpcDemoProviderApplication {
 		return result;
 	}
 
+	@Resource
+	private ProviderBusConf providerBusConf;
+
+	@RequestMapping(value = "/findProviderBusConf")
+	public String findProviderBusConf() {
+		return providerBusConf.getMetas().toString();
+	}
+
 	/**
 	 * 模拟远程调用
 	 * @return
@@ -53,24 +63,22 @@ public class HefrpcDemoProviderApplication {
 			request.setService("cn.hefrankeleyn.hefrpc.demo.api.UserService");
 			request.setMethodSign("findById#int");
 			request.setArgs(new Object[]{100});
-			for (int i = 0; i < 100; i++) {
-				try {
-					int times = i + 1;
-					int loopTimes = times%30;
-					Thread.sleep(1000);
-					RpcResponse<Object> response = providerInvoker.invoke(request);
-
-					if (response.isStatus()) {
-						System.out.println(Strings.lenientFormat("times: %s, loopTimes: %s, =====> %s",times, loopTimes, response.getData()));
-					}else {
-						System.out.println(Strings.lenientFormat("times: %s, loopTimes: %s, =====> %s",times, loopTimes, response.getEx().getMessage()));
-					}
-				}catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-			}
-
-
+//			for (int i = 0; i < 100; i++) {
+//				try {
+//					int times = i + 1;
+//					int loopTimes = times%30;
+//					Thread.sleep(1000);
+//					RpcResponse<Object> response = providerInvoker.invoke(request);
+//
+//					if (response.isStatus()) {
+//						System.out.println(Strings.lenientFormat("times: %s, loopTimes: %s, =====> %s",times, loopTimes, response.getData()));
+//					}else {
+//						System.out.println(Strings.lenientFormat("times: %s, loopTimes: %s, =====> %s",times, loopTimes, response.getEx().getMessage()));
+//					}
+//				}catch (Exception e) {
+//					throw new RuntimeException(e);
+//				}
+//			}
 		};
 	}
 }

@@ -4,6 +4,7 @@ import cn.hefrankeleyn.hefrpc.core.api.HefRpcException;
 import cn.hefrankeleyn.hefrpc.core.api.HefrpcContent;
 import cn.hefrankeleyn.hefrpc.core.api.RpcRequest;
 import cn.hefrankeleyn.hefrpc.core.api.RpcResponse;
+import cn.hefrankeleyn.hefrpc.core.conf.ProviderBusConf;
 import cn.hefrankeleyn.hefrpc.core.governance.SlidingTimeWindow;
 import cn.hefrankeleyn.hefrpc.core.meta.ProviderMeta;
 import cn.hefrankeleyn.hefrpc.core.utils.TypeUtils;
@@ -29,16 +30,18 @@ public class ProviderInvoker {
     private static final Logger log = LoggerFactory.getLogger(ProviderInvoker.class);
 
     private MultiValueMap<String, ProviderMeta> skeletion;
-    private Map<String, String> metas;
+//    private Map<String, String> metas;
+    private final ProviderBusConf providerBusConf;
     // 流控参数
-    private final int trafficControl;
+//    private final int trafficControl;
     // 使用滑动窗口来做流控
     private final Map<String, SlidingTimeWindow> windows = Maps.newHashMap();
 
     public ProviderInvoker(ProviderBootstrap providerBootstrap){
         this.skeletion = providerBootstrap.getSkeletion();
-        this.metas = providerBootstrap.getProviderBusConf().getMetas();
-        this.trafficControl = Integer.parseInt(metas.getOrDefault("tc", "20"));
+//        this.metas = providerBootstrap.getProviderBusConf().getMetas();
+        this.providerBusConf = providerBootstrap.getProviderBusConf();
+//        this.trafficControl = Integer.parseInt(metas.getOrDefault("tc", "20"));
     }
 
     public RpcResponse<Object> invoke(RpcRequest request) {
@@ -48,6 +51,7 @@ public class ProviderInvoker {
             // 流控
             synchronized (windows) {
                 SlidingTimeWindow slidingTimeWindow = windows.computeIfAbsent(request.getService(), k -> new SlidingTimeWindow());
+                int trafficControl = Integer.parseInt(providerBusConf.getMetas().getOrDefault("tc", "20"));
                 if (slidingTimeWindow.calcSum()>=trafficControl) {
                     System.out.println(windows);
                     throw new HefRpcException(Strings.lenientFormat("service: %s invoked in 30s [%s] larger then tpsLimit.",

@@ -18,7 +18,7 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:8081/
+POST http://localhost:8081/hefrpc
 Content-Type: application/json
 
 {
@@ -31,4 +31,8 @@ Content-Type: application/json
 
 ### 修改超时
 GET http://localhost:8081/updateTimeoutPorts?timeoutPorts=8083
+Accept: application/json
+
+### 查询参数
+GET http://localhost:8081/findProviderBusConf
 Accept: application/json

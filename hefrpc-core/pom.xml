@@ -22,6 +22,8 @@
         <zookeeper.version>3.9.2</zookeeper.version>
         <fastjson.version>1.2.83</fastjson.version>
         <spring-boot-configuration-processor.version>3.2.0</spring-boot-configuration-processor.version>
+        <apollo-client.version>2.2.0</apollo-client.version>
+        <spring-cloud-context.version>4.1.2</spring-cloud-context.version>
     </properties>
     <dependencies>
         <dependency>
@@ -94,6 +96,18 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
             <version>${spring-boot-configuration-processor.version}</version>
             <optional>true</optional>
+        </dependency>
+
+<!--        整合apollo配置中心-->
+        <dependency>
+            <groupId>com.ctrip.framework.apollo</groupId>
+            <artifactId>apollo-client</artifactId>
+            <version>${apollo-client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-context</artifactId>
+            <version>${spring-cloud-context.version}</version>
         </dependency>
     </dependencies>
 

@@ -69,4 +69,10 @@ public class ProviderConf {
         };
     }
 
+    @Bean
+    @ConditionalOnMissingBean
+    public ApolloChangeListener apolloChangeListener() {
+        return new ApolloChangeListener();
+    }
+
 }
