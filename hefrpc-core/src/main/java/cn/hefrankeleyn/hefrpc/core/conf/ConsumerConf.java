@@ -10,6 +10,7 @@ import cn.hefrankeleyn.hefrpc.core.filter.CacheFilter;
 import cn.hefrankeleyn.hefrpc.core.filter.MockFilter;
 import cn.hefrankeleyn.hefrpc.core.filter.ParameterFilter;
 import cn.hefrankeleyn.hefrpc.core.meta.InstanceMeta;
+import cn.hefrankeleyn.hefrpc.core.registry.hef.HefRegistryCenter;
 import cn.hefrankeleyn.hefrpc.core.registry.zk.ZkRegistryCenter;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
@@ -71,7 +72,8 @@ public class ConsumerConf {
     public RegistryCenter registryCenter() {
 //        List<String> providers = Arrays.asList(servers.split(","));
 //        return new RegistryCenter.StaticRegistryCenter(providers);
-        return new ZkRegistryCenter(zkServers, zkRoot);
+//        return new ZkRegistryCenter(zkServers, zkRoot);
+        return new HefRegistryCenter();
     }
 
     @Bean

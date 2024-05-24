@@ -25,3 +25,6 @@ logging:
     root: error
     cn.hefrankeleyn.hefrpc: info
     com.hhrpc.hefrpc.demo: info
+
+hefregistry:
+  servers: http://localhost:8383

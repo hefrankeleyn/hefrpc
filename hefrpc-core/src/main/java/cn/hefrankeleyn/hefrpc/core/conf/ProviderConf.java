@@ -3,6 +3,7 @@ package cn.hefrankeleyn.hefrpc.core.conf;
 import cn.hefrankeleyn.hefrpc.core.api.RegistryCenter;
 import cn.hefrankeleyn.hefrpc.core.provider.ProviderBootstrap;
 import cn.hefrankeleyn.hefrpc.core.provider.ProviderInvoker;
+import cn.hefrankeleyn.hefrpc.core.registry.hef.HefRegistryCenter;
 import cn.hefrankeleyn.hefrpc.core.registry.zk.ZkRegistryCenter;
 import cn.hefrankeleyn.hefrpc.core.transport.SpringBootTransport;
 import jakarta.annotation.Resource;
@@ -56,7 +57,8 @@ public class ProviderConf {
     @Bean(initMethod = "start")
     @ConditionalOnMissingBean
     public RegistryCenter registryCenter() {
-        return new ZkRegistryCenter(zkServers, zkRoot);
+//        return new ZkRegistryCenter(zkServers, zkRoot);
+        return new HefRegistryCenter();
     }
 
     @Bean

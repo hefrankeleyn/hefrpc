@@ -16,10 +16,13 @@ hefrpc:
     servers: localhost:2181
     root: hefrpc
 
+hefregistry:
+  servers: http://localhost:8383
+
 logging:
   level:
     root: error
-    cn.hefrankeleyn.hefrpc: info
+    cn.hefrankeleyn.hefrpc.core.registry: debug
     com.hhrpc.hefrpc.demo: info
 
 app:
