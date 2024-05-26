@@ -44,8 +44,8 @@ public class HefRegistryCenter implements RegistryCenter {
     private Map<String, Long> VERSIONS = Maps.newHashMap();
     private MultiValueMap<InstanceMeta, ServiceMeta> INSTANCES = new LinkedMultiValueMap<>();
 
-    private ScheduledExecutorService consumerExecutor;
-    private ScheduledExecutorService providerExecutor;
+
+    private final HefHealthChecker healthChecker = new HefHealthChecker();
 
 
 
@@ -53,38 +53,27 @@ public class HefRegistryCenter implements RegistryCenter {
     @Override
     public void start() {
         log.debug("====> [HefRegistry]: start with servers: {}", registryServer);
-        consumerExecutor = Executors.newSingleThreadScheduledExecutor();
-        providerExecutor = Executors.newSingleThreadScheduledExecutor();
-        providerExecutor.scheduleWithFixedDelay(()->{
+        healthChecker.start();
+        providerCheck();
+    }
+
+    private void providerCheck() {
+        healthChecker.providerHealthCheck(()->{
             INSTANCES.keySet().parallelStream().forEach(instance->{
                 String requestBody = new Gson().toJson(instance);
                 Long timestamp = HttpInvoker.httpPost(renewsPath(INSTANCES.get(instance)), requestBody, Long.class);
                 log.debug("===> [HefRegistry] timestamp {},  check alive for instance {}", timestamp, instance);
             });
-        }, 5, 5, TimeUnit.SECONDS);
+        });
     }
 
     @Override
     public void stop() {
         log.debug("====> [HefRegistry]: stop with servers: {}", registryServer);
-        gracefulShutdown(consumerExecutor);
+        healthChecker.stop();
     }
 
-    /**
-     * 优雅的关闭
-     * @param executor
-     */
-    private void gracefulShutdown(ScheduledExecutorService executor) {
-        executor.shutdown();
-        try {
-            executor.awaitTermination(1000, TimeUnit.MILLISECONDS);
-            if (!executor.isTerminated()) {
-                executor.shutdownNow();
-            }
-        }catch (Exception e) {
-            // ignore
-        }
-    }
+
 
     @Override
     public void register(ServiceMeta service, InstanceMeta instance) {
@@ -118,7 +107,11 @@ public class HefRegistryCenter implements RegistryCenter {
 
     @Override
     public void subscribe(ServiceMeta service, ChangedListener changedListener) {
-        consumerExecutor.scheduleWithFixedDelay(()->{
+        consumerCheck(service, changedListener);
+    }
+
+    private void consumerCheck(ServiceMeta service, ChangedListener changedListener) {
+        healthChecker.consumerHealthCheck(()->{
             Long oldVersion = VERSIONS.getOrDefault(service.toPath(), -1L);
             Long newVersion = HttpInvoker.httpGet(versionPath(service), Long.class);
             log.debug("===> [HefRegistry] new version: {}, old version: {}", newVersion, oldVersion);
@@ -127,8 +120,7 @@ public class HefRegistryCenter implements RegistryCenter {
                 changedListener.fire(new Event(instanceList));
                 VERSIONS.put(service.toPath(), newVersion);
             }
-
-        }, 0, 1000, TimeUnit.MILLISECONDS);
+        });
     }
 
     private String renewsPath(List<ServiceMeta> serviceMetaList) {
