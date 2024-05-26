@@ -23,7 +23,7 @@ hefrpc:
 logging:
   level:
     root: error
-    cn.hefrankeleyn.hefrpc: info
+    cn.hefrankeleyn.hefrpc.core.registry: debug
     com.hhrpc.hefrpc.demo: info
 
 hefregistry:

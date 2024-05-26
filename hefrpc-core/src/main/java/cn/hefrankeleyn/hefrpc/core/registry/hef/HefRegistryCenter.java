@@ -32,6 +32,11 @@ import java.util.stream.Collectors;
 public class HefRegistryCenter implements RegistryCenter {
 
     private static final Logger log = LoggerFactory.getLogger(HefRegistryCenter.class);
+    private static final String REGISTER_PATH = "register";
+    private static final String RENEWS_PATH = "renews";
+    private static final String UNREGISTER_PATH = "unregister";
+    private static final String FINALL_PATH = "findAllInstances";
+    private static final String VERSION_PATH = "version";
 
     @Value("${hefregistry.servers}")
     private String registryServer;
@@ -43,6 +48,8 @@ public class HefRegistryCenter implements RegistryCenter {
     private ScheduledExecutorService providerExecutor;
 
 
+
+
     @Override
     public void start() {
         log.debug("====> [HefRegistry]: start with servers: {}", registryServer);
@@ -50,10 +57,9 @@ public class HefRegistryCenter implements RegistryCenter {
         providerExecutor = Executors.newSingleThreadScheduledExecutor();
         providerExecutor.scheduleWithFixedDelay(()->{
             INSTANCES.keySet().parallelStream().forEach(instance->{
-                String services = INSTANCES.get(instance).stream().map(ServiceMeta::toPath).collect(Collectors.joining(","));
                 String requestBody = new Gson().toJson(instance);
-                Long timestamp = HttpInvoker.httpPost(Strings.lenientFormat("%s/renews?services=%s", registryServer, services), requestBody, Long.class);
-                log.debug("===> [HefRegistry] timestamp {},  check alive for instance {}, services: {}", timestamp, instance, services);
+                Long timestamp = HttpInvoker.httpPost(renewsPath(INSTANCES.get(instance)), requestBody, Long.class);
+                log.debug("===> [HefRegistry] timestamp {},  check alive for instance {}", timestamp, instance);
             });
         }, 5, 5, TimeUnit.SECONDS);
     }
@@ -83,7 +89,7 @@ public class HefRegistryCenter implements RegistryCenter {
     @Override
     public void register(ServiceMeta service, InstanceMeta instance) {
         log.debug("====> [HefRegistry]: registr instance {} for service {}", instance, service);
-        String url = Strings.lenientFormat("%s/register?service=%s", registryServer, service.toPath());
+        String url = registerPath(service);
         InstanceMeta instanceMeta = HttpInvoker.httpPost(url, new Gson().toJson(instance), InstanceMeta.class);
         log.debug("====> [hefRegistry]: register url : {}", url);
         if (Objects.nonNull(instanceMeta)) {
@@ -95,7 +101,7 @@ public class HefRegistryCenter implements RegistryCenter {
     @Override
     public void unregister(ServiceMeta service, InstanceMeta instance) {
         log.debug("====> [HefRegistry]: unregister instance {} for service {}", instance, service);
-        InstanceMeta instanceMeta = HttpInvoker.httpPost(Strings.lenientFormat("%s/unregister?service=%s", registryServer, service.toPath()),
+        InstanceMeta instanceMeta = HttpInvoker.httpPost(unregisterPath(service),
                 new Gson().toJson(instance), InstanceMeta.class);
         INSTANCES.remove(instanceMeta, service);
         log.debug("===> [HefRegistry]: unregister instance {}", instanceMeta);
@@ -104,19 +110,17 @@ public class HefRegistryCenter implements RegistryCenter {
     @Override
     public List<InstanceMeta> findAll(ServiceMeta service) {
         log.debug("====> [HefRegistry]: findAll instances for service {}", service);
-        List<InstanceMeta> instanceList = HttpInvoker.httpGet(Strings.lenientFormat("%s/findAllInstances?service=%s", registryServer, service.toPath()),
+        List<InstanceMeta> instanceList = HttpInvoker.httpGet(findAllPath(service),
                 new TypeToken<List<InstanceMeta>>() {});
         log.debug("===> [HefRegistry]: findAll instance: {}", instanceList);
         return instanceList;
     }
 
-
-
     @Override
     public void subscribe(ServiceMeta service, ChangedListener changedListener) {
         consumerExecutor.scheduleWithFixedDelay(()->{
-            Long oldVersion = VERSIONS.getOrDefault((Object) service.toPath(), -1L);
-            Long newVersion = HttpInvoker.httpGet(Strings.lenientFormat("%s/version?service=%s", registryServer, service.toPath()), Long.class);
+            Long oldVersion = VERSIONS.getOrDefault(service.toPath(), -1L);
+            Long newVersion = HttpInvoker.httpGet(versionPath(service), Long.class);
             log.debug("===> [HefRegistry] new version: {}, old version: {}", newVersion, oldVersion);
             if (Optional.ofNullable(newVersion).orElse(-1L) > oldVersion) {
                 List<InstanceMeta> instanceList = findAll(service);
@@ -126,4 +130,34 @@ public class HefRegistryCenter implements RegistryCenter {
 
         }, 0, 1000, TimeUnit.MILLISECONDS);
     }
+
+    private String renewsPath(List<ServiceMeta> serviceMetaList) {
+        return path(RENEWS_PATH, serviceMetaList);
+    }
+
+    private String registerPath(ServiceMeta service) {
+        return path(REGISTER_PATH, service);
+    }
+
+    private String unregisterPath(ServiceMeta service) {
+        return path(UNREGISTER_PATH, service);
+    }
+
+    private String findAllPath(ServiceMeta service) {
+        return path(FINALL_PATH, service);
+    }
+
+    private String versionPath(ServiceMeta service) {
+        return path(VERSION_PATH, service);
+    }
+
+    private String path(String context, ServiceMeta service) {
+        return Strings.lenientFormat("%s/%s?service=%s", registryServer, context, service.toPath());
+    }
+
+    private String path(String context, List<ServiceMeta> serviceMetaList) {
+        String services = serviceMetaList.stream().map(ServiceMeta::toPath).collect(Collectors.joining(","));
+        return Strings.lenientFormat("%s/%s?services=%s", registryServer, context, services);
+    }
+
 }
