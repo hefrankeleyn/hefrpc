@@ -1,13 +1,13 @@
 package cn.hefrankeleyn.hefrpc.demo.provider;
 
+import cn.hefrankeleyn.hefrpc.core.annotation.EnableHefrpc;
 import cn.hefrankeleyn.hefrpc.core.api.RpcRequest;
 import cn.hefrankeleyn.hefrpc.core.api.RpcResponse;
 import cn.hefrankeleyn.hefrpc.core.conf.ProviderBusConf;
 import cn.hefrankeleyn.hefrpc.core.conf.ProviderConf;
 import cn.hefrankeleyn.hefrpc.core.provider.ProviderInvoker;
 import cn.hefrankeleyn.hefrpc.demo.api.UserService;
-import com.google.common.base.Strings;
-import com.google.gson.Gson;
+import io.github.hefrankeleyn.hefconfig.client.annotation.EnableHefConfigAnnotation;
 import jakarta.annotation.Resource;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 @SpringBootApplication
 @RestController
+@EnableHefConfigAnnotation
 @Import(ProviderConf.class)
 public class HefrpcDemoProviderApplication {
 

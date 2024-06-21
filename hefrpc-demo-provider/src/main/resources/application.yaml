@@ -33,7 +33,7 @@ apollo:
   meta: http://localhost:8080
   autoUpdateInjectedSpringProperties: true
   bootstrap:
-    enabled: true
+    enabled: false
     namespaces: rpcprovider,application
     eagerLoad:
       enabled: true
