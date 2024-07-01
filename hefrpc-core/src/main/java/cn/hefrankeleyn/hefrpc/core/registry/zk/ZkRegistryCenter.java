@@ -7,6 +7,7 @@ import cn.hefrankeleyn.hefrpc.core.meta.ServiceMeta;
 import cn.hefrankeleyn.hefrpc.core.registry.ChangedListener;
 import cn.hefrankeleyn.hefrpc.core.registry.Event;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.apache.curator.RetryPolicy;
@@ -33,7 +34,7 @@ public class ZkRegistryCenter implements RegistryCenter {
     private static final Logger log = LoggerFactory.getLogger(ZkRegistryCenter.class);
 
     private CuratorFramework client = null;
-    private TreeCache treeCache=null;
+    private List<TreeCache> treeCacheList = Lists.newArrayList();
 
     private final String zkServers;
     private final String zkRoot;
@@ -60,8 +61,8 @@ public class ZkRegistryCenter implements RegistryCenter {
     @Override
     public void stop() {
         log.info("====>> stop zk.");
-        if (Objects.nonNull(treeCache)) {
-            treeCache.close();
+        if (Objects.nonNull(treeCacheList)) {
+            treeCacheList.forEach(TreeCache::close);
         }
         client.close();
     }
@@ -144,7 +145,7 @@ public class ZkRegistryCenter implements RegistryCenter {
     public void subscribe(ServiceMeta serviceMeta, ChangedListener changedListener) {
         try {
             String servicePath = Strings.lenientFormat("/%s", serviceMeta.toPath());
-            treeCache = TreeCache.newBuilder(client, servicePath)
+            final TreeCache treeCache = TreeCache.newBuilder(client, servicePath)
                     .setCacheData(true) // 打开缓存，避免频繁交互
                     .setMaxDepth(2) // 设置最大的深度
                     .build();
@@ -155,6 +156,7 @@ public class ZkRegistryCenter implements RegistryCenter {
                 changedListener.fire(new Event(instanceMetaList));
             });
             treeCache.start();
+            treeCacheList.add(treeCache);
         }catch (Exception e) {
             throw new HefRpcException(e);
         }
